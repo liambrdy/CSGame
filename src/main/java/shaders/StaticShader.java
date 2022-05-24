@@ -12,5 +12,6 @@ public class StaticShader extends Shader {
     @Override
     protected void bindAttributes() {
         super.bindAttribute(0, "a_Position");
+        super.bindAttribute(1, "a_uvCoord");
     }
 }

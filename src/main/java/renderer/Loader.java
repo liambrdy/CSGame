@@ -17,16 +17,23 @@ public class Loader {
         return new Mesh(vaoID, indices.length);
     }
 
+    public Mesh loadToVAO(float[] positions, int[] indices, float[] uvs) {
+        int vaoID = createVAO();
+        bindIndicesBuffer(indices);
+        storeDataInAttributeList(0, 2, positions);
+        storeDataInAttributeList(1, 2, uvs);
+        unbindVAO();
+        return new Mesh(vaoID, indices.length);
+    }
+
     private int createVAO() {
-        int vao = -1;
         try (MemoryStack stack = stackPush()) {
             IntBuffer ib = stack.callocInt(1);
             glGenVertexArrays(ib);
-            vao = ib.get(0);
+            int vao = ib.get(0);
             glBindVertexArray(vao);
+            return vao;
         }
-
-        return vao;
     }
 
     private void unbindVAO() {
@@ -41,6 +48,8 @@ public class Loader {
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
             FloatBuffer buffer = stack.callocFloat(data.length);
+            buffer.put(data);
+            buffer.flip();
             glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
             glEnableVertexAttribArray(attrIndex);
             glVertexAttribPointer(attrIndex, coordCount, GL_FLOAT, false, 0, 0);
@@ -58,6 +67,7 @@ public class Loader {
 
             IntBuffer indexBuffer = stack.callocInt(indices.length);
             indexBuffer.put(indices);
+            indexBuffer.flip();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
         }
     }

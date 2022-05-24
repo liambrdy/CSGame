@@ -30,6 +30,12 @@ public abstract class Shader {
         glLinkProgram(programID);
         glValidateProgram(programID);
 
+        if (glGetProgrami(programID, GL_LINK_STATUS) != GL_FALSE) {
+            System.out.println(glGetProgramInfoLog(programID, 1024));
+            System.out.println("Could not validate program");
+            System.exit(-1);
+        }
+
         glDetachShader(programID, vert);
         glDetachShader(programID, frag);
         glDeleteShader(vert);
@@ -106,9 +112,10 @@ public abstract class Shader {
             e.printStackTrace();
             System.exit(-1);
         }
-
+        
         int id = glCreateShader(type);
         glShaderSource(id, shaderSource);
+        glCompileShader(id);
         if (glGetShaderi(id, GL_COMPILE_STATUS) != GL_FALSE) {
             System.out.println(glGetShaderInfoLog(id, 1024));
             System.out.println("Could not compile shader " + file);
