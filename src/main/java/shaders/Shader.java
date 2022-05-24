@@ -30,7 +30,7 @@ public abstract class Shader {
         glLinkProgram(programID);
         glValidateProgram(programID);
 
-        if (glGetProgrami(programID, GL_LINK_STATUS) != GL_FALSE) {
+        if (glGetProgrami(programID, GL_LINK_STATUS) != GL_TRUE) {
             System.out.println(glGetProgramInfoLog(programID, 1024));
             System.out.println("Could not validate program");
             System.exit(-1);
@@ -100,7 +100,7 @@ public abstract class Shader {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             while ((line = reader.readLine()) != null) {
-                shaderSource.append(line).append("//\n");
+                shaderSource.append(line).append("\n");
             }
             reader.close();
         } catch (FileNotFoundException e) {
@@ -112,11 +112,11 @@ public abstract class Shader {
             e.printStackTrace();
             System.exit(-1);
         }
-        
+
         int id = glCreateShader(type);
         glShaderSource(id, shaderSource);
         glCompileShader(id);
-        if (glGetShaderi(id, GL_COMPILE_STATUS) != GL_FALSE) {
+        if (glGetShaderi(id, GL_COMPILE_STATUS) != GL_TRUE) {
             System.out.println(glGetShaderInfoLog(id, 1024));
             System.out.println("Could not compile shader " + file);
             System.exit(-1);
