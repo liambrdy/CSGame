@@ -7,7 +7,7 @@ public class StaticShader extends Shader {
     private int viewLocation;
 
     public StaticShader() {
-        super("shaders/static.vert", "shaders/static.frag");
+        super("shaders/static.glsl", "shaders/static.frag");
     }
 
     @Override
