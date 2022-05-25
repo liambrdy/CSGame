@@ -7,6 +7,8 @@ import java.util.Map;
 import static assets.Packer.writeString;
 
 public class LoadedShader {
+    public static final String HEADER = "shad";
+
     public enum LoadedShaderType {
         Unknown,
         Vertex,
@@ -88,13 +90,24 @@ public class LoadedShader {
         }
     }
 
+    public LoadedShader(FileInputStream stream) throws IOException {
+        int shaderCount = stream.read();
+        for (int i = 0; i < shaderCount; i++) {
+            String typeStr = Unpacker.unpackString(stream, 4);
+            int strLen = Unpacker.unpackInteger(stream);
+            String shader = Unpacker.unpackString(stream, strLen);
+            shaders.put(LoadedShaderType.fromString(typeStr).ordinal(), shader);
+        }
+    }
+
     public void write(FileOutputStream stream) throws IOException {
-        writeString(stream, "shad");
+        writeString(stream, HEADER);
+        stream.write(shaders.size());
         for (int i = LoadedShaderType.Vertex.ordinal(); i < LoadedShaderType.MAX.ordinal(); i++) {
             String shader = shaders.get(i);
             if (shader != null) {
                 writeString(stream, LoadedShaderType.toString(i));
-                stream.write(shader.length());
+                Packer.writeInteger(stream, shader.length());
                 writeString(stream, shader);
             }
         }

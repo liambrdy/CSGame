@@ -1,10 +1,9 @@
 package assets;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -15,6 +14,8 @@ import static assets.Packer.writeString;
 public class LoadedTexture {
     private int width, height, channels;
     private ByteBuffer pixels;
+
+    public static final String HEADER = "text";
 
     public LoadedTexture(File path) {
         try (MemoryStack stack = stackPush()) {
@@ -32,8 +33,17 @@ public class LoadedTexture {
         }
     }
 
+    public LoadedTexture(FileInputStream stream) throws IOException {
+        width = stream.read();
+        height = stream.read();
+        channels = stream.read();
+
+        pixels = BufferUtils.createByteBuffer(width * height);
+        pixels.put(stream.readNBytes(width * height));
+    }
+
     public void write(FileOutputStream stream) throws IOException {
-        writeString(stream, "text");
+        writeString(stream, HEADER);
         stream.write(width);
         stream.write(height);
         stream.write(channels);

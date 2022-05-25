@@ -7,9 +7,7 @@ import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIVector3D;
 import renderer.Mesh;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +16,8 @@ import static org.lwjgl.assimp.Assimp.*;
 import static assets.Packer.*;
 
 public class LoadedModel {
+    public static final String HEADER = "modl";
+
     public class LoadedMesh {
         private List<Float> vertices = new ArrayList<>();
         private List<Float> texCoords = new ArrayList<>();
@@ -29,6 +29,23 @@ public class LoadedModel {
             texCoords = texs;
             normals = norms;
             indices = idxs;
+        }
+
+        public LoadedMesh(FileInputStream stream) throws IOException {
+            int vertCount = Unpacker.unpackInteger(stream);
+            int indexCount = Unpacker.unpackInteger(stream);
+
+            for (int v = 0; v < vertCount; v++)
+                vertices.add(Unpacker.unpackFloat(stream));
+
+            for (int t = 0; t < vertCount; t++)
+                texCoords.add(Unpacker.unpackFloat(stream));
+
+            for (int n = 0; n < vertCount; n++)
+                normals.add(Unpacker.unpackFloat(stream));
+
+            for (int j = 0; j < indexCount; j++)
+                indices.add(Unpacker.unpackInteger(stream));
         }
     }
 
@@ -47,20 +64,27 @@ public class LoadedModel {
         }
     }
 
+    public LoadedModel(FileInputStream stream) throws IOException {
+        int meshCount = stream.read();
+        for (int i = 0; i < meshCount; i++) {
+            meshes.add(new LoadedMesh(stream));
+        }
+    }
+
     public void write(FileOutputStream stream) throws IOException {
-        writeString(stream, "modl");
+        writeString(stream, HEADER);
         stream.write(meshes.size());
         for (LoadedMesh mesh : meshes) {
-            stream.write(mesh.vertices.size());
-            stream.write(mesh.indices.size());
+            Packer.writeInteger(stream, mesh.vertices.size());
+            Packer.writeInteger(stream, mesh.indices.size());
             for (Float v : mesh.vertices)
-                stream.write(v.byteValue());
+                Packer.writeFloat(stream, v);
             for (Float t : mesh.texCoords)
-                stream.write(t.byteValue());
+                Packer.writeFloat(stream, t);
             for (Float n : mesh.normals)
-                stream.write(n.byteValue());
+                Packer.writeFloat(stream, n);
             for (Integer i : mesh.indices)
-                stream.write(i);
+                Packer.writeInteger(stream, i);
         }
     }
 

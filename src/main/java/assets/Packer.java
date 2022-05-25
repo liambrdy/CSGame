@@ -23,6 +23,18 @@ public class Packer {
         }
     }
 
+    public static void writeInteger(FileOutputStream stream, int i) throws IOException {
+        String str = String.format("%d", i);
+        stream.write(str.length());
+        writeString(stream, str);
+    }
+
+    public static void writeFloat(FileOutputStream stream, float f) throws IOException {
+        String str = String.format("%f", f);
+        stream.write(str.length());
+        writeString(stream, str);
+    }
+
     public static void pack(String assetDir, String outputPath) {
         long loadStart = System.nanoTime();
         PackedAssets assets = new PackedAssets();
@@ -41,6 +53,7 @@ public class Packer {
 
         try (FileOutputStream stream = new FileOutputStream(outputPath)) {
             writeString(stream, "aset");
+            stream.write(assets.shaders.size() + assets.textures.size() + assets.models.size());
             for (LoadedShader shader : assets.shaders)
                 shader.write(stream);
 
@@ -86,6 +99,7 @@ public class Packer {
 
     public static void main(String[] args) {
         pack("src/main/resources", "assets.bin");
-        Unpacker.unpack("assets.bin");
+        PackedAssets assets = Unpacker.unpack("assets.bin");
+        System.out.println("Unpacked " + assets.models.size() + " models, " + assets.textures.size() + " textures, and " + assets.shaders.size() + " shaders");
     }
 }
