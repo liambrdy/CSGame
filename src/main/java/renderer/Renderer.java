@@ -1,12 +1,17 @@
 package renderer;
 
+import org.joml.Matrix4f;
 import shaders.StaticShader;
 
 import static org.lwjgl.opengl.GL33.*;
 
 public class Renderer {
-    public Renderer() {
+    private final Matrix4f projection = new Matrix4f();
 
+    public Renderer() {
+        glEnable(GL_DEPTH_TEST);
+
+        projection.perspective((float)Math.toRadians(45.0f), 1280.0f / 720.0f, 0.01f, 1000.0f);
     }
 
     public void beginScene() {
@@ -16,6 +21,7 @@ public class Renderer {
 
     public void render(Mesh mesh, StaticShader shader) {
         shader.bind();
+        shader.setProjection(projection);
         glBindVertexArray(mesh.getVertexArray());
         glDrawElements(GL_TRIANGLES, mesh.getCount(), GL_UNSIGNED_INT, 0);
     }
