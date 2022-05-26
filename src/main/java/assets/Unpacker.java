@@ -1,20 +1,19 @@
 package assets;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Unpacker {
     public static Packer.PackedAssets unpack(String assetPath) {
         Packer.PackedAssets assets = new Packer.PackedAssets();
-        try (FileInputStream stream = new FileInputStream(assetPath)) {
+        try (FileInputStream fileStream = new FileInputStream(assetPath)) {
+            DataInputStream stream = new DataInputStream(fileStream);
             String header = unpackString(stream, 4);
-            if (!header.equals("aset"))
+            if (!header.equals(Packer.HEADER))
                 throw new RuntimeException("File does not have asset file header");
-            int assetCount = stream.read();
 
+            int assetCount = stream.readInt();
             for (int i = 0; i < assetCount; i++) {
                 String assetHeader = unpackString(stream, 4);
                 switch (assetHeader) {
@@ -25,6 +24,7 @@ public class Unpacker {
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Failed to find asset file: " + assetPath);
+        } catch (EOFException ignored) {
         } catch (IOException e) {
             throw new RuntimeException("Could not asset file: " + assetPath);
         }
@@ -32,20 +32,11 @@ public class Unpacker {
         return assets;
     }
 
-    public static String unpackString(FileInputStream stream, int len) throws IOException {
-        byte[] bytes = stream.readNBytes(len);
+    public static String unpackString(DataInputStream stream, int len) throws IOException {
+        byte[] bytes = new byte[len];
+        int count = stream.read(bytes);
+        if (len != count)
+            throw new RuntimeException("Failed to read from asset file");
         return new String(bytes, StandardCharsets.UTF_8);
-    }
-
-    public static int unpackInteger(FileInputStream stream) throws IOException {
-        int len = stream.read();
-        String str = unpackString(stream, len);
-        return Integer.parseInt(str);
-    }
-
-    public static float unpackFloat(FileInputStream stream) throws IOException {
-        int len = stream.read();
-        String str = unpackString(stream, len);
-        return Float.parseFloat(str);
     }
 }

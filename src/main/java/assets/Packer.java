@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Packer {
+    public static final String HEADER = "aset";
+
     public static class PackedAssets {
         private List<LoadedModel> models = new ArrayList<>();
         private List<LoadedTexture> textures = new ArrayList<>();
@@ -51,9 +53,11 @@ public class Packer {
 
         long packStart = System.nanoTime();
 
-        try (FileOutputStream stream = new FileOutputStream(outputPath)) {
-            writeString(stream, "aset");
-            stream.write(assets.shaders.size() + assets.textures.size() + assets.models.size());
+        try (FileOutputStream fileStream = new FileOutputStream(outputPath)) {
+            DataOutputStream stream = new DataOutputStream(fileStream);
+//            writeString(stream, "aset");
+            stream.writeBytes(HEADER);
+            stream.writeInt(assets.shaders.size() + assets.textures.size() + assets.models.size());
             for (LoadedShader shader : assets.shaders)
                 shader.write(stream);
 
@@ -62,6 +66,8 @@ public class Packer {
 
             for (LoadedModel model : assets.models)
                 model.write(stream);
+
+            stream.write(0);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Failed to find asset file: " + outputPath);
         } catch (IOException e) {

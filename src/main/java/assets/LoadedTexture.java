@@ -33,20 +33,20 @@ public class LoadedTexture {
         }
     }
 
-    public LoadedTexture(FileInputStream stream) throws IOException {
-        width = stream.read();
-        height = stream.read();
-        channels = stream.read();
+    public LoadedTexture(DataInputStream stream) throws IOException {
+        width = stream.readInt();
+        height = stream.readInt();
+        channels = stream.readInt();
 
-        pixels = BufferUtils.createByteBuffer(width * height);
-        pixels.put(stream.readNBytes(width * height));
+        pixels = BufferUtils.createByteBuffer(width * height * channels);
+        pixels.put(stream.readNBytes(width * height * channels));
     }
 
-    public void write(FileOutputStream stream) throws IOException {
-        writeString(stream, HEADER);
-        stream.write(width);
-        stream.write(height);
-        stream.write(channels);
+    public void write(DataOutputStream stream) throws IOException {
+        stream.writeBytes(HEADER);
+        stream.writeInt(width);
+        stream.writeInt(height);
+        stream.writeInt(channels);
 
         byte[] bytes = new byte[pixels.remaining()];
         pixels.get(bytes, 0, bytes.length);

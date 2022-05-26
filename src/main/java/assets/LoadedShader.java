@@ -90,25 +90,25 @@ public class LoadedShader {
         }
     }
 
-    public LoadedShader(FileInputStream stream) throws IOException {
-        int shaderCount = stream.read();
+    public LoadedShader(DataInputStream stream) throws IOException {
+        int shaderCount = stream.readInt();
         for (int i = 0; i < shaderCount; i++) {
             String typeStr = Unpacker.unpackString(stream, 4);
-            int strLen = Unpacker.unpackInteger(stream);
+            int strLen = stream.readInt();
             String shader = Unpacker.unpackString(stream, strLen);
             shaders.put(LoadedShaderType.fromString(typeStr).ordinal(), shader);
         }
     }
 
-    public void write(FileOutputStream stream) throws IOException {
-        writeString(stream, HEADER);
-        stream.write(shaders.size());
+    public void write(DataOutputStream stream) throws IOException {
+        stream.writeBytes(HEADER);
+        stream.writeInt(shaders.size());
         for (int i = LoadedShaderType.Vertex.ordinal(); i < LoadedShaderType.MAX.ordinal(); i++) {
             String shader = shaders.get(i);
             if (shader != null) {
-                writeString(stream, LoadedShaderType.toString(i));
-                Packer.writeInteger(stream, shader.length());
-                writeString(stream, shader);
+                stream.writeBytes(LoadedShaderType.toString(i));
+                stream.writeInt(shader.length());
+                stream.writeBytes(shader);
             }
         }
     }

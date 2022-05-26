@@ -31,21 +31,26 @@ public class LoadedModel {
             indices = idxs;
         }
 
-        public LoadedMesh(FileInputStream stream) throws IOException {
-            int vertCount = Unpacker.unpackInteger(stream);
-            int indexCount = Unpacker.unpackInteger(stream);
+        public LoadedMesh(DataInputStream stream) throws IOException {
+            int vertCount = stream.readInt();
+            int indexCount = stream.readInt();
 
-            for (int v = 0; v < vertCount; v++)
-                vertices.add(Unpacker.unpackFloat(stream));
+            int vertexCount = vertCount / 3;
 
-            for (int t = 0; t < vertCount; t++)
-                texCoords.add(Unpacker.unpackFloat(stream));
+            for (int v = 0; v < vertexCount * 3; v++)
+                vertices.add(stream.readFloat());
 
-            for (int n = 0; n < vertCount; n++)
-                normals.add(Unpacker.unpackFloat(stream));
+            for (int t = 0; t < vertexCount * 2; t++)
+                texCoords.add(stream.readFloat());
+
+            for (int n = 0; n < vertexCount * 3; n++)
+                normals.add(stream.readFloat());
 
             for (int j = 0; j < indexCount; j++)
-                indices.add(Unpacker.unpackInteger(stream));
+                indices.add(stream.readInt());
+
+            int len = stream.readInt();
+            System.out.println(Unpacker.unpackString(stream, len));
         }
     }
 
@@ -64,27 +69,34 @@ public class LoadedModel {
         }
     }
 
-    public LoadedModel(FileInputStream stream) throws IOException {
-        int meshCount = stream.read();
+    public LoadedModel(DataInputStream stream) throws IOException {
+        int meshCount = stream.readInt();
         for (int i = 0; i < meshCount; i++) {
             meshes.add(new LoadedMesh(stream));
         }
     }
 
-    public void write(FileOutputStream stream) throws IOException {
-        writeString(stream, HEADER);
-        stream.write(meshes.size());
+    public void write(DataOutputStream stream) throws IOException {
+        stream.writeBytes(HEADER);
+        stream.writeInt(meshes.size());
+        int j = 0;
         for (LoadedMesh mesh : meshes) {
-            Packer.writeInteger(stream, mesh.vertices.size());
-            Packer.writeInteger(stream, mesh.indices.size());
+            stream.writeInt(mesh.vertices.size());
+            stream.writeInt(mesh.indices.size());
+
             for (Float v : mesh.vertices)
-                Packer.writeFloat(stream, v);
+                stream.writeFloat(v);
             for (Float t : mesh.texCoords)
-                Packer.writeFloat(stream, t);
+                stream.writeFloat(t);
             for (Float n : mesh.normals)
-                Packer.writeFloat(stream, n);
+                stream.writeFloat(n);
             for (Integer i : mesh.indices)
-                Packer.writeInteger(stream, i);
+                stream.writeInt(i);
+
+            String s = "mesh " + j;
+            stream.writeInt(s.length());
+            stream.writeBytes(s);
+            j++;
         }
     }
 
