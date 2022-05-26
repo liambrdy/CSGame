@@ -14,6 +14,7 @@ import static assets.Packer.writeString;
 public class LoadedTexture {
     private int width, height, channels;
     private ByteBuffer pixels;
+    private String name;
 
     public static final String HEADER = "text";
 
@@ -22,6 +23,9 @@ public class LoadedTexture {
             IntBuffer widthBuffer = stack.callocInt(1);
             IntBuffer heightBuffer = stack.callocInt(1);
             IntBuffer channelBuffer = stack.callocInt(1);
+
+            name = path.getName();
+            name = name.substring(0, name.lastIndexOf("."));
 
             pixels = stbi_load(path.toString(), widthBuffer, heightBuffer, channelBuffer, STBI_default);
             if (pixels == null)
@@ -34,6 +38,8 @@ public class LoadedTexture {
     }
 
     public LoadedTexture(DataInputStream stream) throws IOException {
+        int nameLen = stream.readInt();
+        name = Unpacker.unpackString(stream, nameLen);
         width = stream.readInt();
         height = stream.readInt();
         channels = stream.readInt();
@@ -44,6 +50,8 @@ public class LoadedTexture {
 
     public void write(DataOutputStream stream) throws IOException {
         stream.writeBytes(HEADER);
+        stream.writeInt(name.length());
+        stream.writeBytes(name);
         stream.writeInt(width);
         stream.writeInt(height);
         stream.writeInt(channels);
@@ -54,4 +62,6 @@ public class LoadedTexture {
 
 //        stbi_image_free(pixels);
     }
+
+    public String getName() { return name; }
 }

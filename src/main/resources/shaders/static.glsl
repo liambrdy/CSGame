@@ -1,12 +1,12 @@
 #type vert
-#version 330 core
+#version 450 core
 
 layout (location = 0) in vec3 a_Position;
 layout (location = 1) in vec2 a_uvCoord;
 layout (location = 2) in vec3 a_Normal;
 
-layout (location = 0) out vec2 v_uvCoord;
-layout (location = 1) out vec3 v_Normal;
+out vec2 v_uvCoord;
+out vec3 v_Normal;
 
 uniform mat4 u_Projection;
 uniform mat4 u_View;
@@ -18,12 +18,12 @@ void main() {
 }
 
 #type frag
-#version 330 core
+#version 450 core
 
 layout (location = 0) out vec4 color;
 
-layout (location = 0) in vec2 v_uvCoord;
-layout (location = 1) in vec3 v_Normal;
+in vec2 v_uvCoord;
+in vec3 v_Normal;
 
 uniform sampler2D u_Texture;
 

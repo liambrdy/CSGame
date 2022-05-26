@@ -41,8 +41,11 @@ public class LoadedShader {
     }
 
     private Map<Integer, String> shaders = new HashMap<Integer, String>();
+    private String name;
 
     public LoadedShader(File path) {
+        name = path.getName();
+        name = name.substring(0, name.lastIndexOf("."));
         StringBuilder sourceBuilder = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
@@ -91,6 +94,8 @@ public class LoadedShader {
     }
 
     public LoadedShader(DataInputStream stream) throws IOException {
+        int nameLen = stream.readInt();
+        name = Unpacker.unpackString(stream, nameLen);
         int shaderCount = stream.readInt();
         for (int i = 0; i < shaderCount; i++) {
             String typeStr = Unpacker.unpackString(stream, 4);
@@ -102,6 +107,8 @@ public class LoadedShader {
 
     public void write(DataOutputStream stream) throws IOException {
         stream.writeBytes(HEADER);
+        stream.writeInt(name.length());
+        stream.writeBytes(name);
         stream.writeInt(shaders.size());
         for (int i = LoadedShaderType.Vertex.ordinal(); i < LoadedShaderType.MAX.ordinal(); i++) {
             String shader = shaders.get(i);
@@ -112,4 +119,10 @@ public class LoadedShader {
             }
         }
     }
+
+    public String getShader(LoadedShaderType type) {
+        return shaders.get(type.ordinal());
+    }
+
+    public String getName() { return name; }
 }

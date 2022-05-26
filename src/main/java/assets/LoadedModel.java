@@ -48,15 +48,16 @@ public class LoadedModel {
 
             for (int j = 0; j < indexCount; j++)
                 indices.add(stream.readInt());
-
-            int len = stream.readInt();
-            System.out.println(Unpacker.unpackString(stream, len));
         }
     }
 
     private List<LoadedMesh> meshes = new ArrayList<>();
+    private String name;
 
     public LoadedModel(File path) {
+        name = path.getName();
+        name = name.substring(0, name.lastIndexOf("."));
+
         AIScene scene = aiImportFile(path.toString(), aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FixInfacingNormals | aiProcess_GenNormals);
         if (scene == null)
             throw new RuntimeException("Failed to load obj: " + path);
@@ -70,6 +71,8 @@ public class LoadedModel {
     }
 
     public LoadedModel(DataInputStream stream) throws IOException {
+        int nameLen = stream.readInt();
+        name = Unpacker.unpackString(stream, nameLen);
         int meshCount = stream.readInt();
         for (int i = 0; i < meshCount; i++) {
             meshes.add(new LoadedMesh(stream));
@@ -78,8 +81,9 @@ public class LoadedModel {
 
     public void write(DataOutputStream stream) throws IOException {
         stream.writeBytes(HEADER);
+        stream.writeInt(name.length());
+        stream.writeBytes(name);
         stream.writeInt(meshes.size());
-        int j = 0;
         for (LoadedMesh mesh : meshes) {
             stream.writeInt(mesh.vertices.size());
             stream.writeInt(mesh.indices.size());
@@ -92,11 +96,6 @@ public class LoadedModel {
                 stream.writeFloat(n);
             for (Integer i : mesh.indices)
                 stream.writeInt(i);
-
-            String s = "mesh " + j;
-            stream.writeInt(s.length());
-            stream.writeBytes(s);
-            j++;
         }
     }
 
@@ -161,4 +160,6 @@ public class LoadedModel {
             indices.add(indexBuffer.get(2));
         }
     }
+
+    public String getName() { return name; }
 }

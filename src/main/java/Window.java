@@ -31,6 +31,10 @@ public class Window {
         glfwMakeContextCurrent(handle);
         glfwSwapInterval(1);
 
+        glfwSetWindowSizeCallback(handle, (window, w, h) -> {
+            glViewport(0, 0, w, h);
+        });
+
         GL.createCapabilities();
     }
 

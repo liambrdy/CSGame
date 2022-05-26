@@ -16,6 +16,10 @@ public class Packer {
         public void addModel(LoadedModel model) { models.add(model); }
         public void addTexture(LoadedTexture texture) { textures.add(texture); }
         public void addShader(LoadedShader shader) { shaders.add(shader); }
+
+        public List<LoadedModel> getModels() { return models; }
+        public List<LoadedTexture> getTextures() { return textures; }
+        public List<LoadedShader> getShaders() { return shaders; }
     }
 
     public static void writeString(FileOutputStream stream, String str) throws IOException {

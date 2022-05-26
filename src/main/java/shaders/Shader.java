@@ -1,5 +1,7 @@
 package shaders;
 
+import assets.AssetManager;
+import assets.LoadedShader;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -19,9 +21,13 @@ public abstract class Shader {
 
     private static final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
-    public Shader(String vertexFile, String fragmentFile) {
-        int vert = loadShader("src/main/resources/" + vertexFile, GL_VERTEX_SHADER);
-        int frag = loadShader("src/main/resources/" + fragmentFile, GL_FRAGMENT_SHADER);
+    public Shader(String name) {
+        LoadedShader s = AssetManager.getLoadedShader(name);
+        String vertexSource = s.getShader(LoadedShader.LoadedShaderType.Vertex);
+        String fragmentSource = s.getShader(LoadedShader.LoadedShaderType.Fragment);
+
+        int vert = createShader(vertexSource, GL_VERTEX_SHADER);
+        int frag = createShader(fragmentSource, GL_FRAGMENT_SHADER);
 
         programID = glCreateProgram();
         glAttachShader(programID, vert);
@@ -94,31 +100,13 @@ public abstract class Shader {
         glUniformMatrix4fv(location, false, matrixBuffer);
     }
 
-    private static int loadShader(String file, int type) {
-        StringBuilder shaderSource = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                shaderSource.append(line).append("\n");
-            }
-            reader.close();
-        } catch (FileNotFoundException e) {
-            System.err.println("File \"" + file + "\" not found!");
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (IOException e) {
-            System.err.println("Could not read file: \"" + file + "\"!" );
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
+    private static int createShader(String source, int type) {
         int id = glCreateShader(type);
-        glShaderSource(id, shaderSource);
+        glShaderSource(id, source);
         glCompileShader(id);
         if (glGetShaderi(id, GL_COMPILE_STATUS) != GL_TRUE) {
             System.out.println(glGetShaderInfoLog(id, 1024));
-            System.out.println("Could not compile shader " + file);
+            System.out.println("Could not compile shader");
             System.exit(-1);
         }
 

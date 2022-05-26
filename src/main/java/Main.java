@@ -1,3 +1,5 @@
+import assets.AssetManager;
+import assets.Packer;
 import org.joml.Vector3f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIScene;
@@ -15,6 +17,9 @@ public class Main {
     public static void main(String[] args) {
         Window window = new Window(1280, 720, "Game");
         Input.Init(window.getHandle());
+
+        Packer.pack("src/main/resources", "assets.bin");
+        AssetManager.init("assets.bin");
 
         Renderer renderer = new Renderer();
         StaticShader shader = new StaticShader();
