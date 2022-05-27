@@ -25,4 +25,16 @@ public class Renderer {
         glBindVertexArray(mesh.getVertexArray());
         glDrawElements(GL_TRIANGLES, mesh.getCount(), GL_UNSIGNED_INT, 0);
     }
+
+    public void render(Model model, StaticShader shader) {
+        shader.bind();
+        shader.setProjection(projection);
+        for (int i = 0; i < model.getMeshes().length; i++) {
+            Mesh m = model.getMeshes()[i];
+            glBindVertexArray(m.getVertexArray());
+            Material mat = model.getMaterial(i);
+            mat.setUniforms(shader);
+            glDrawElements(GL_TRIANGLES, m.getCount(), GL_UNSIGNED_INT, 0);
+        }
+    }
 }

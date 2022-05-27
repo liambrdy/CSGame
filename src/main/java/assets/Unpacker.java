@@ -8,6 +8,7 @@ public class Unpacker {
     public static Packer.PackedAssets unpack(String assetPath) {
         Packer.PackedAssets assets = new Packer.PackedAssets();
         try (FileInputStream fileStream = new FileInputStream(assetPath)) {
+            long begin = System.nanoTime();
             DataInputStream stream = new DataInputStream(fileStream);
             String header = unpackString(stream, 4);
             if (!header.equals(Packer.HEADER))
@@ -22,6 +23,10 @@ public class Unpacker {
                     case LoadedModel.HEADER -> assets.addModel(new LoadedModel(stream));
                 }
             }
+
+            long end = System.nanoTime();
+            System.out.println("Unpacked " + assets.getModels().size() + " models, " + assets.getTextures().size() + " textures, and " + assets.getShaders().size() +
+                    " shaders in " + ((end - begin) / 1000000000.0) + " seconds");
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Failed to find asset file: " + assetPath);
         } catch (EOFException ignored) {

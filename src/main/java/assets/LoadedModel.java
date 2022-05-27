@@ -1,16 +1,17 @@
 package assets;
 
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.assimp.AIFace;
-import org.lwjgl.assimp.AIMesh;
-import org.lwjgl.assimp.AIScene;
-import org.lwjgl.assimp.AIVector3D;
+import org.lwjgl.assimp.*;
+import renderer.Material;
 import renderer.Mesh;
 
 import java.io.*;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import static org.lwjgl.assimp.Assimp.*;
 import static assets.Packer.*;
@@ -23,44 +24,79 @@ public class LoadedModel {
         private List<Float> texCoords = new ArrayList<>();
         private List<Float> normals = new ArrayList<>();
         private List<Integer> indices = new ArrayList<>();
+        private int materialIndex;
 
-        public LoadedMesh(List<Float> verts, List<Float> texs, List<Float> norms, List<Integer> idxs) {
+        public LoadedMesh(List<Float> verts, List<Float> texs, List<Float> norms, List<Integer> idxs, int matIdx) {
             vertices = verts;
             texCoords = texs;
             normals = norms;
             indices = idxs;
+            materialIndex = matIdx;
         }
 
         public LoadedMesh(DataInputStream stream) throws IOException {
+            materialIndex = stream.readInt();
             int vertCount = stream.readInt();
             int indexCount = stream.readInt();
 
             int vertexCount = vertCount / 3;
 
-            for (int v = 0; v < vertexCount * 3; v++)
+            for (int v = 0; v < vertexCount * 3; v++) {
                 vertices.add(stream.readFloat());
+            }
 
-            for (int t = 0; t < vertexCount * 2; t++)
+            for (int t = 0; t < vertexCount * 2; t++) {
                 texCoords.add(stream.readFloat());
+            }
 
-            for (int n = 0; n < vertexCount * 3; n++)
+            for (int n = 0; n < vertexCount * 3; n++) {
                 normals.add(stream.readFloat());
+            }
 
-            for (int j = 0; j < indexCount; j++)
+            for (int j = 0; j < indexCount; j++) {
                 indices.add(stream.readInt());
+            }
+        }
+
+        public List<Float> getVertices() {
+            return vertices;
+        }
+
+        public List<Float> getTexCoords() {
+            return texCoords;
+        }
+
+        public List<Float> getNormals() {
+            return normals;
+        }
+
+        public List<Integer> getIndices() {
+            return indices;
+        }
+
+        public int getMaterialIndex() {
+            return materialIndex;
         }
     }
 
     private List<LoadedMesh> meshes = new ArrayList<>();
+    private List<Material> materials = new ArrayList<>();
     private String name;
 
     public LoadedModel(File path) {
         name = path.getName();
         name = name.substring(0, name.lastIndexOf("."));
 
-        AIScene scene = aiImportFile(path.toString(), aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FixInfacingNormals | aiProcess_GenNormals);
+        AIScene scene = aiImportFile(path.toString(), aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FixInfacingNormals | aiProcess_GenNormals | aiProcess_GenUVCoords);
         if (scene == null)
             throw new RuntimeException("Failed to load obj: " + path);
+
+        int materialCount = scene.mNumMaterials();
+        PointerBuffer aiMaterials = scene.mMaterials();
+        for (int i = 0; i < materialCount; i++) {
+            AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
+            processMaterial(aiMaterial);
+        }
 
         int meshCount = scene.mNumMeshes();
         PointerBuffer aiMeshes = scene.mMeshes();
@@ -73,6 +109,10 @@ public class LoadedModel {
     public LoadedModel(DataInputStream stream) throws IOException {
         int nameLen = stream.readInt();
         name = Unpacker.unpackString(stream, nameLen);
+        int materialCount = stream.readInt();
+        for (int i = 0; i < materialCount; i++) {
+            materials.add(new Material(readVector3f(stream), readVector3f(stream), readVector3f(stream), stream.readFloat()));
+        }
         int meshCount = stream.readInt();
         for (int i = 0; i < meshCount; i++) {
             meshes.add(new LoadedMesh(stream));
@@ -83,8 +123,16 @@ public class LoadedModel {
         stream.writeBytes(HEADER);
         stream.writeInt(name.length());
         stream.writeBytes(name);
+        stream.writeInt(materials.size());
+        for (Material mat : materials) {
+            writeVector3f(stream, mat.getAmbient());
+            writeVector3f(stream, mat.getDiffuse());
+            writeVector3f(stream, mat.getSpecular());
+            stream.writeFloat(mat.getShininess());
+        }
         stream.writeInt(meshes.size());
         for (LoadedMesh mesh : meshes) {
+            stream.writeInt(mesh.materialIndex);
             stream.writeInt(mesh.vertices.size());
             stream.writeInt(mesh.indices.size());
 
@@ -99,6 +147,36 @@ public class LoadedModel {
         }
     }
 
+    private void processMaterial(AIMaterial aiMaterial) {
+        AIColor4D color = AIColor4D.create();
+
+        AIString path = AIString.calloc();
+        Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, null, null, null, null, null);
+        String texPath = path.dataString();
+
+        Vector3f ambient = Material.DEFAULT_AMBIENT;
+        int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0, color);
+        if (result == 0)
+            ambient = new Vector3f(color.r(), color.g(), color.b());
+
+        Vector3f diffuse = Material.DEFAULT_DIFFUSE;
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, color);
+        if (result == 0)
+            diffuse = new Vector3f(color.r(), color.g(), color.b());
+
+        Vector3f specular = Material.DEFAULT_SPECULAR;
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, color);
+        if (result == 0)
+            specular = new Vector3f(color.r(), color.g(), color.b());
+
+        float shininess = Material.DEFAULT_SHININESS;
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_SHININESS, aiTextureType_NONE, 0, color);
+        if (result == 0)
+            shininess = color.r();
+
+        materials.add(new Material(ambient, diffuse, specular, shininess));
+    }
+
     private LoadedMesh processMesh(AIMesh aiMesh) {
         List<Float> vertices = new ArrayList<>();
         List<Float> textures = new ArrayList<>();
@@ -110,7 +188,15 @@ public class LoadedModel {
         processNormals(aiMesh, normals);
         processIndices(aiMesh, indices);
 
-        return new LoadedMesh(vertices, textures, normals, indices);
+        if (textures.size() == 0) {
+            int numElements = (vertices.size() / 3) * 2;
+            for (int i = 0; i < numElements; i++)
+                textures.add(0.0f);
+        }
+
+        int materialIdx = aiMesh.mMaterialIndex();
+
+        return new LoadedMesh(vertices, textures, normals, indices, materialIdx);
     }
 
     private void processVertices(AIMesh aiMesh, List<Float> vertices) {
@@ -124,16 +210,12 @@ public class LoadedModel {
     }
 
     private void processTexCoords(AIMesh aiMesh, List<Float> coords) {
-        if (aiMesh.mNumUVComponents().get(0) != 0) {
-            AIVector3D.Buffer aiTextureCoords = aiMesh.mTextureCoords(0);
-            for (int i = 0; i < aiMesh.mNumVertices(); i++) {
-                AIVector3D uv = aiTextureCoords.get(i);
-                coords.add(uv.x());
-                coords.add(uv.y());
-            }
-        } else {
-            coords.add(0.0f);
-            coords.add(0.0f);
+        AIVector3D.Buffer textCoords = aiMesh.mTextureCoords(0);
+        int numTextCoords = textCoords != null ? textCoords.remaining() : 0;
+        for (int i = 0; i < numTextCoords; i++) {
+            AIVector3D textCoord = textCoords.get();
+            coords.add(textCoord.x());
+            coords.add(1 - textCoord.y());
         }
     }
 
@@ -161,5 +243,20 @@ public class LoadedModel {
         }
     }
 
+    private void writeVector3f(DataOutputStream stream, Vector3f v) throws IOException {
+        stream.writeFloat(v.x);
+        stream.writeFloat(v.y);
+        stream.writeFloat(v.z);
+    }
+
+    private Vector3f readVector3f(DataInputStream stream) throws IOException {
+        float x = stream.readFloat();
+        float y = stream.readFloat();
+        float z = stream.readFloat();
+        return new Vector3f(x, y, z);
+    }
+
     public String getName() { return name; }
+    public List<LoadedMesh> getMeshes() { return meshes; }
+    public List<Material> getMaterials() { return materials; }
 }

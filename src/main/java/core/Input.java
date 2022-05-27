@@ -1,4 +1,4 @@
-import org.lwjgl.glfw.*;
+package core;
 
 import java.util.Arrays;
 
