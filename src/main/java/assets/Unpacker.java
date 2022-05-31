@@ -29,7 +29,8 @@ public class Unpacker {
                     " shaders in " + ((end - begin) / 1000000000.0) + " seconds");
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Failed to find asset file: " + assetPath);
-        } catch (EOFException ignored) {
+        } catch (EOFException e) {
+            throw new RuntimeException("Ran past end of asset file");
         } catch (IOException e) {
             throw new RuntimeException("Could not asset file: " + assetPath);
         }

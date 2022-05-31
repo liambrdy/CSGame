@@ -43,6 +43,19 @@ public class Camera {
         else if (Input.isKeyDown(Key.S))
             pos.sub(forward);
 
+        boolean rotated = Input.isKeyDown(Key.Up) || Input.isKeyDown(Key.Down) || Input.isKeyDown(Key.Left) || Input.isKeyDown(Key.Right);
+        if (Input.isKeyDown(Key.Down))
+            pitch -= 1;
+        else if (Input.isKeyDown(Key.Up))
+            pitch += 1;
+        if (Input.isKeyDown(Key.Left))
+            yaw -= 1;
+        else if (Input.isKeyDown(Key.Right))
+            yaw += 1;
+
+        if (rotated)
+            updateCameraVectors();
+
         if (moved)
             updateViewMatrix();
     }
@@ -60,6 +73,8 @@ public class Camera {
 
         right.set(f.cross(up).normalize());
         up.set(new Vector3f(right).cross(forward).normalize());
+
+        updateViewMatrix();
     }
 
     public Vector3f getPos() { return pos; }

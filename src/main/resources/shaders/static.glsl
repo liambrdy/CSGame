@@ -11,12 +11,13 @@ out vec3 v_Pos;
 
 uniform mat4 u_Projection;
 uniform mat4 u_View;
+uniform mat4 u_Transform;
 
 void main() {
     v_uvCoord = a_uvCoord;
     v_Normal = a_Normal;
     v_Pos = vec3(vec4(a_Position, 1.0));
-    gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
+    gl_Position = u_Projection * u_View * u_Transform * vec4(a_Position, 1.0);
 }
 
 #type frag

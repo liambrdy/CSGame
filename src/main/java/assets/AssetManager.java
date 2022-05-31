@@ -26,6 +26,23 @@ public class AssetManager {
             models.put(md.getName(), md);
     }
 
+    public static void init() {
+        assets = Packer.getPackedAssets("src/main/resources/");
+
+        shaders = new HashMap<String, LoadedShader>();
+        textures = new HashMap<String, LoadedTexture>();
+        models = new HashMap<String, LoadedModel>();
+
+        for (LoadedTexture tx : assets.getTextures())
+            textures.put(tx.getName(), tx);
+
+        for (LoadedShader sh : assets.getShaders())
+            shaders.put(sh.getName(), sh);
+
+        for (LoadedModel md : assets.getModels())
+            models.put(md.getName(), md);
+    }
+
     public static LoadedShader getLoadedShader(String name) {
         if (shaders.containsKey(name))
             return shaders.get(name);

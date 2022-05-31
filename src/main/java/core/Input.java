@@ -47,6 +47,10 @@ public class Input {
                 case Enter -> GLFW_KEY_ENTER;
                 case Escape -> GLFW_KEY_ESCAPE;
                 case Backspace -> GLFW_KEY_BACKSPACE;
+                case Up -> GLFW_KEY_UP;
+                case Down -> GLFW_KEY_DOWN;
+                case Left -> GLFW_KEY_LEFT;
+                case Right -> GLFW_KEY_RIGHT;
                 default -> GLFW_KEY_UNKNOWN;
             };
         }
@@ -64,6 +68,10 @@ public class Input {
                 case GLFW_KEY_ENTER -> Key.Enter;
                 case GLFW_KEY_ESCAPE -> Key.Escape;
                 case GLFW_KEY_BACKSPACE -> Key.Backspace;
+                case GLFW_KEY_UP -> Key.Up;
+                case GLFW_KEY_DOWN -> Key.Down;
+                case GLFW_KEY_LEFT -> Key.Left;
+                case GLFW_KEY_RIGHT -> Key.Right;
                 default -> Key.Unknown;
             };
         }

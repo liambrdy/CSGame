@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Packer {
     public static final String HEADER = "aset";
@@ -41,15 +42,27 @@ public class Packer {
         writeString(stream, str);
     }
 
-    public static void pack(String assetDir, String outputPath) {
-        long loadStart = System.nanoTime();
+    public static PackedAssets getPackedAssets(String assetDir) {
         PackedAssets assets = new PackedAssets();
+
+        long startTime = System.nanoTime();
 
         File dir = new File(assetDir);
         if (!dir.isDirectory())
             throw new RuntimeException("AssetDir is not a directory");
 
-        packDir(dir, assets);
+        getDir(dir, assets);
+
+        long endTime = System.nanoTime();
+        System.out.println("Loaded " + assets.models.size() + " models, " + assets.textures.size() + " textures, and " + assets.shaders.size() + " shaders in " +
+                ((endTime - startTime) / 1000000000.0) + " seconds");
+
+        return assets;
+    }
+
+    public static void pack(String assetDir, String outputPath) {
+        long loadStart = System.nanoTime();
+        PackedAssets assets = getPackedAssets(assetDir);
         long loadEnd = System.nanoTime();
 
         System.out.println("Loaded " + assets.models.size() + " models, " + assets.textures.size() + " textures, and " + assets.shaders.size() + " shaders in " +
@@ -83,12 +96,12 @@ public class Packer {
                 ((packEnd - packStart) / 1000000000.0) + " seconds");
     }
 
-    private static void packDir(File dir, PackedAssets assets) {
+    private static void getDir(File dir, PackedAssets assets) {
         File[] dirListing = dir.listFiles();
         if (dirListing != null) {
             for (File child : dirListing) {
                 if (child.isDirectory())
-                    packDir(child, assets);
+                    getDir(child, assets);
                 else {
                     String name = child.getName();
                     String ext = name.substring(name.lastIndexOf(".") + 1);
@@ -107,9 +120,9 @@ public class Packer {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         pack("src/main/resources", "assets.bin");
         PackedAssets assets = Unpacker.unpack("assets.bin");
-        System.out.println("Unpacked " + assets.models.size() + " models, " + assets.textures.size() + " textures, and " + assets.shaders.size() + " shaders");
+        System.out.println("UnpackedA " + assets.models.size() + " models, " + assets.textures.size() + " textures, and " + assets.shaders.size() + " shaders");
     }
 }

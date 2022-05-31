@@ -14,6 +14,7 @@ public class StaticShader extends Shader {
     private int diffuseColorLocation;
     private int specularColorLocation;
     private int shininessLocation;
+    private int transformLocation;
 
     public StaticShader() {
         super("static");
@@ -29,6 +30,7 @@ public class StaticShader extends Shader {
         diffuseColorLocation = super.getUniformLocation("u_Material.diffuse");
         specularColorLocation = super.getUniformLocation("u_Material.specular");
         shininessLocation = super.getUniformLocation("u_Material.shininess");
+        transformLocation = super.getUniformLocation("u_Transform");
     }
 
     @Override
@@ -54,5 +56,9 @@ public class StaticShader extends Shader {
         super.setFloat3(diffuseColorLocation, dif);
         super.setFloat3(specularColorLocation, spec);
         super.setFloat(shininessLocation, shi);
+    }
+
+    public void setTransform(Matrix4f transform) {
+        super.setMatrix(transformLocation, transform);
     }
 }

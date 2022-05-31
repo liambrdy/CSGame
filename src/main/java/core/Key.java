@@ -43,5 +43,9 @@ public enum Key {
     Enter,
     Escape,
     Backspace,
+    Up,
+    Down,
+    Left,
+    Right,
     MAX,
 }
