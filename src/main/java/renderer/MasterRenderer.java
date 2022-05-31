@@ -1,29 +1,38 @@
 package renderer;
 
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector4f;
+import game.Entity;
+import org.joml.*;
 import org.lwjgl.opengl.GLDebugMessageCallback;
 import org.lwjgl.system.MemoryStack;
+import shaders.StaticShader;
+import shaders.TextShader;
 
+import java.lang.Math;
 import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL44.*;
 import static org.lwjgl.system.MemoryStack.*;
 
 public class MasterRenderer {
-    private static Map<Integer, IRenderer> renderers;
+    private static MeshRenderer meshRenderer;
+    private static TextRenderer textRenderer;
 
-    public enum RendererType {
-        Mesh,
-        Text,
-        Unknown
-    };
+    private static StaticShader staticShader;
+    private static TextShader textShader;
 
-    public static void init() {
-        renderers = new HashMap<>();
+    private static Matrix4f projection;
+    private static Matrix4f textOrtho;
+
+    public static void init(float width, float height) {
+        projection = new Matrix4f().perspective((float)Math.toRadians(45.0f), width / height, 0.01f, 1000.0f);
+        textOrtho = new Matrix4f().ortho(0.0f, width, height, 0.0f, 0.0f, 10.0f);
+
+        staticShader = new StaticShader();
+        meshRenderer = new MeshRenderer(projection, staticShader);
+
+        textShader = new TextShader();
+        textRenderer = new TextRenderer(textOrtho, textShader, new Font("c:/windows/fonts/times.ttf"));
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
@@ -54,45 +63,34 @@ public class MasterRenderer {
     }
 
     public static void beginScene() {
-        for (IRenderer r : renderers.values())
-            r.beginScene();
+        textRenderer.beginScene();
     }
 
     public static void endScene() {
-        for (IRenderer r : renderers.values())
-            r.endScene();
+        textRenderer.endScene();
     }
 
     public static void onWindowResize(float width, float height) {
-        for (IRenderer r : renderers.values())
-            r.onWindowResize(width, height);
+        projection.perspective((float)Math.toRadians(45.0f), width / height, 0.01f, 1000.0f);
+        textOrtho.ortho(0.0f, width, height, 0.0f, 0.0f, 10.0f);
     }
 
-    public static void addRenderer(IRenderer renderer) {
-        renderers.put(getType(renderer), renderer);
+    public static void drawScene(List<Entity> entities, List<Light> lights) {
+        staticShader.bind();
+        staticShader.setLights(lights);
+
     }
 
-    public static void drawModel(Model model, Matrix4f transform) {
-        if (!renderers.containsKey(RendererType.Mesh.ordinal()))
-            throw new RuntimeException("Master Renderer does not contain a mesh renderer");
-
-        MeshRenderer r = (MeshRenderer) renderers.get(RendererType.Mesh.ordinal());
-        r.render(model, transform);
-    }
-
-    public static void drawText(String text, Vector2f pos, Vector4f color) {
-        if (!renderers.containsKey(RendererType.Text.ordinal()))
-            throw new RuntimeException("Master Renderer does not contain a text renderer");
-
-        TextRenderer r = (TextRenderer) renderers.get(RendererType.Text.ordinal());
-        r.render(text, pos, color);
-    }
-
-    private static int getType(IRenderer renderer) {
-        return switch (renderer.getClass().getSimpleName()) {
-            case "MeshRenderer" -> RendererType.Mesh.ordinal();
-            case "TextRenderer" -> RendererType.Text.ordinal();
-            default -> RendererType.Unknown.ordinal();
-        };
-    }
+//    public static void drawModel(Model model, Matrix4f transform) {
+//        MeshRenderer r = (MeshRenderer) renderers.get(RendererType.Mesh.ordinal());
+//        r.render(model, transform);
+//    }
+//
+//    public static void drawText(String text, Vector2f pos, Vector4f color) {
+//        if (!renderers.containsKey(RendererType.Text.ordinal()))
+//            throw new RuntimeException("Master Renderer does not contain a text renderer");
+//
+//        TextRenderer r = (TextRenderer) renderers.get(RendererType.Text.ordinal());
+//        r.render(text, pos, color);
+//    }
 }

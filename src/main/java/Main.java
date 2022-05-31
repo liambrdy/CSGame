@@ -10,6 +10,9 @@ import renderer.*;
 import shaders.StaticShader;
 import shaders.TextShader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
         float width = 1280.0f;
@@ -21,24 +24,26 @@ public class Main {
 //        AssetManager.init("assets.bin");
         AssetManager.init();
 
-        MasterRenderer.init();
+        MasterRenderer.init(width, height);
 
         StaticShader shader = new StaticShader();
         Camera camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f));
-        Font font = new Font("c:/windows/fonts/times.ttf");
-        MasterRenderer.addRenderer(new MeshRenderer(width, height, shader, camera));
-        MasterRenderer.addRenderer(new TextRenderer(new TextShader(), width, height, font));
-
 
 //        Texture grass = new Texture("textures/grass.jpg");
 
 //        Model tree = new Model("Tree");
-        Entity tree = new Entity(new Model("dungeon_room"), new Vector3f(0.0f, 0.0f, 0.0f), 10.0f);
+        Entity tree = new Entity(new Model("low-poly-mill"), new Vector3f(0.0f, 0.0f, 0.0f), 10.0f);
 
         Vector3f lightPos = new Vector3f(-80.0f, 10.0f, 0.0f);
 
         Vector2f pos = new Vector2f(100.0f, 100.0f);
         Vector4f color = new Vector4f(0.8f, 0.7f, 0.2f, 1.0f);
+
+        List<Light> lights = new ArrayList<>();
+        lights.add(new Light(new Vector3f(0.0f, 1000.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f)));
+
+        List<Entity> entities = new ArrayList<>();
+        entities.add(tree);
 
         while (!window.shouldClose()) {
             window.update();
@@ -50,9 +55,10 @@ public class Main {
 
 
 //            renderer.render(mesh, shader);
-            MasterRenderer.drawModel(tree.getModel(), tree.getTransform());
-
-            MasterRenderer.drawText("Hello world this is really great", pos, color);
+//            MasterRenderer.drawModel(tree.getModel(), tree.getTransform());
+//
+//            MasterRenderer.drawText("Hello world this is really great", pos, color);
+            MasterRenderer.drawScene(entities, lights);
 
             MasterRenderer.endScene();
 

@@ -81,17 +81,23 @@ public class Mesh {
 
             if (data.length > 16384) {
                 int left = data.length;
+                int begin = left;
                 int i = 0;
 
                 glBufferData(GL_ARRAY_BUFFER, (long) data.length * Float.BYTES, GL_STATIC_DRAW);
 
                 while (left > 0) {
-                    FloatBuffer b = stack.callocFloat(4096);
-                    b.put(data, i * 4096, 4096);
-                    b.flip();
-                    glBufferSubData(GL_ARRAY_BUFFER, (long)i * 4096, b);
-                    left -= 4096;
-                    i++;
+                    try (MemoryStack s = stackPush()) {
+                        FloatBuffer b = s.callocFloat(4096);
+                        int len = 4096;
+                        if (left < len)
+                            len = left % 4096;
+                        b.put(data, begin - left, len);
+                        b.flip();
+                        glBufferSubData(GL_ARRAY_BUFFER, (long) i * 4096, b);
+                        left -= 4096;
+                        i++;
+                    }
                 }
             } else {
                 FloatBuffer buffer = stack.callocFloat(data.length);
@@ -113,10 +119,32 @@ public class Mesh {
             int ebo = eb.get(0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
-            IntBuffer indexBuffer = stack.callocInt(indices.length);
-            indexBuffer.put(indices);
-            indexBuffer.flip();
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+            if (indices.length > 16384) {
+                int left = indices.length;
+                int begin = left;
+                int i = 0;
+
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * Integer.BYTES, GL_STATIC_DRAW);
+
+                while (left > 0) {
+                    try (MemoryStack s = stackPush()) {
+                        IntBuffer b = s.callocInt(4096);
+                        int len = 4096;
+                        if (left < len)
+                            len = left % 4096;
+                        b.put(indices, begin - left, len);
+                        b.flip();
+                        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, (long) i * 4096, b);
+                        left -= 4096;
+                        i++;
+                    }
+                }
+            } else {
+                IntBuffer indexBuffer = stack.callocInt(indices.length);
+                indexBuffer.put(indices);
+                indexBuffer.flip();
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ import java.nio.IntBuffer;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.opengl.GL40.*;
 
-public class TextRenderer implements IRenderer {
+public class TextRenderer {
     private static final int MAX_GLYPHS = 1024;
 
     private Matrix4f projection;
@@ -28,8 +28,8 @@ public class TextRenderer implements IRenderer {
     private int glyphBytes;
     private Font font;
 
-    public TextRenderer(TextShader shader, float width, float height, Font f) {
-        projection = new Matrix4f().ortho(0.0f, width, height, 0.0f, 0.0f, 100.0f);
+    public TextRenderer(Matrix4f projection, TextShader shader, Font f) {
+        this.projection = projection;
         this.shader = shader;
         font = f;
 
@@ -144,11 +144,6 @@ public class TextRenderer implements IRenderer {
 
             glDrawElements(GL_TRIANGLES, glyphCount*6, GL_UNSIGNED_INT, 0);
         }
-    }
-
-    @Override
-    public void onWindowResize(float width, float height) {
-        projection.ortho(0.0f, width, height, 0.0f, 0.0f, 100.0f);
     }
 
     private void resetScene() {

@@ -37,9 +37,12 @@ struct Material {
 };
 
 uniform sampler2D u_Texture;
-uniform vec3 u_LightPos;
 uniform vec3 u_ViewPos;
 uniform Material u_Material;
+
+uniform vec3 u_LightPositions[4];
+uniform vec3 u_LightColors[4];
+uniform vec3 u_LightAttenuations[4];
 
 const vec3 lightAmbient = vec3(0.2, 0.2, 0.2);
 const vec3 lightDiffuse = vec3(0.5, 0.5, 0.5);
@@ -51,15 +54,20 @@ void main() {
     vec3 ambient = lightAmbient * u_Material.ambient;
 
     vec3 norm = normalize(v_Normal);
-    // vec3 lightDir = normalize(u_LightPos - v_Pos);
-    vec3 lightDir = normalize(-lightDirection);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = lightDiffuse * (diff * u_Material.diffuse);
 
-    vec3 viewDir = normalize(u_ViewPos - v_Pos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
-    vec3 specular = lightSpecular * (spec * u_Material.specular);
+    vec3 totalDiff = vec3(0.0);
+    vec3 totalSpec = vec3(0.0);
+
+    for (int i = 0; i < 4; i++) {
+        float dist = length()
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = lightDiffuse * (diff * u_Material.diffuse);
+
+        vec3 viewDir = normalize(u_ViewPos - v_Pos);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
+        vec3 specular = lightSpecular * (spec * u_Material.specular);
+    }
 
     vec3 result = (ambient + diffuse + specular);
     color = vec4(result, 1.0);

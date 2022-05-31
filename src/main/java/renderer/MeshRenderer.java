@@ -7,27 +7,15 @@ import shaders.StaticShader;
 
 import static org.lwjgl.opengl.GL33.*;
 
-public class MeshRenderer implements IRenderer {
-    private final Matrix4f projection = new Matrix4f();
-    private float width, height;
+public class MeshRenderer {
+    private Matrix4f projection;
     private StaticShader shaderHandle;
     private Camera cameraHandle;
 
-    static private MeshRenderer handle;
-
-    public MeshRenderer(float w, float h, StaticShader shader, Camera camera) {
-        if (handle != null)
-            throw new RuntimeException("This is not the first renderer to be created");
-
-        handle = this;
-
+    public MeshRenderer(Matrix4f projection, StaticShader shader) {
         shaderHandle = shader;
-        cameraHandle = camera;
 
-        width = w;
-        height = h;
-
-        projection.perspective((float)Math.toRadians(45.0f), width / height, 0.01f, 1000.0f);
+        this.projection = projection;
     }
 
     public void beginScene() {
@@ -73,16 +61,6 @@ public class MeshRenderer implements IRenderer {
         }
     }
 
-    @Override
     public void endScene() {
     }
-
-    public void onWindowResize(float w, float h) {
-        width = w;
-        height = h;
-
-        projection.perspective((float)Math.toRadians(45.0f), width / height, 0.01f, 1000.0f);
-    }
-
-    public static MeshRenderer getHandle() { return handle; }
 }
