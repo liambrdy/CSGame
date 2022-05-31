@@ -79,10 +79,27 @@ public class Mesh {
             int vbo = ib.get(0);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-            FloatBuffer buffer = stack.callocFloat(data.length);
-            buffer.put(data);
-            buffer.flip();
-            glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+            if (data.length > 16384) {
+                int left = data.length;
+                int i = 0;
+
+                glBufferData(GL_ARRAY_BUFFER, (long) data.length * Float.BYTES, GL_STATIC_DRAW);
+
+                while (left > 0) {
+                    FloatBuffer b = stack.callocFloat(4096);
+                    b.put(data, i * 4096, 4096);
+                    b.flip();
+                    glBufferSubData(GL_ARRAY_BUFFER, (long)i * 4096, b);
+                    left -= 4096;
+                    i++;
+                }
+            } else {
+                FloatBuffer buffer = stack.callocFloat(data.length);
+
+                buffer.put(data);
+                buffer.flip();
+                glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+            }
             glEnableVertexAttribArray(attrIndex);
             glVertexAttribPointer(attrIndex, coordCount, GL_FLOAT, false, 0, 0);
             glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -33,7 +33,7 @@ public class Main {
 //        Texture grass = new Texture("textures/grass.jpg");
 
 //        Model tree = new Model("Tree");
-        Entity tree = new Entity(new Model("Tree"), new Vector3f(0.0f, 0.0f, 0.0f), 10.0f);
+        Entity tree = new Entity(new Model("dungeon_room"), new Vector3f(0.0f, 0.0f, 0.0f), 10.0f);
 
         Vector3f lightPos = new Vector3f(-80.0f, 10.0f, 0.0f);
 
