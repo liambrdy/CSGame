@@ -14,8 +14,8 @@ import static assets.Packer.writeString;
 public class LoadedTexture {
     private int width, height, channels;
     private ByteBuffer pixels;
+    private byte[] pixelArr;
     private String name;
-
     public static final String HEADER = "text";
 
     public LoadedTexture(File path) {
@@ -46,6 +46,10 @@ public class LoadedTexture {
 
         pixels = BufferUtils.createByteBuffer(width * height * channels);
         pixels.put(stream.readNBytes(width * height * channels));
+        pixels.flip();
+//        pixels = BufferUtils.createByteBuffer(width * height * channels);
+//        for (int i = 0; i < width * height * channels; i++)
+//            pixels.put(tmp.get(i));
     }
 
     public void write(DataOutputStream stream) throws IOException {
@@ -63,5 +67,24 @@ public class LoadedTexture {
 //        stbi_image_free(pixels);
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getChannels() {
+        return channels;
+    }
+
+    public ByteBuffer getPixels() {
+        return pixels;
+    }
+
 }

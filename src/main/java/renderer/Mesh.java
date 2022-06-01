@@ -1,5 +1,6 @@
 package renderer;
 
+import assets.AssetManager;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
@@ -17,10 +18,12 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 public class Mesh {
     private final int vao;
     private int count;
+    private Texture texture;
 
-    public Mesh(int vao, int count) {
+    public Mesh(int vao, int count, Texture texture) {
         this.vao = vao;
         this.count = count;
+        this.texture = texture;
     }
 
     public int getVertexArray() {
@@ -31,12 +34,16 @@ public class Mesh {
         return count;
     }
 
+    public Texture getTexture() {
+        return texture;
+    }
+
     public static Mesh create(float[] positions, int[] indices) {
         int vaoID = createVAO();
         bindIndicesBuffer(indices);
         storeDataInAttributeList(0, 2, positions);
         unbindVAO();
-        return new Mesh(vaoID, indices.length);
+        return new Mesh(vaoID, indices.length, AssetManager.getDefaultTexture());
     }
 
     public static Mesh create(float[] positions, int[] indices, float[] uvs) {
@@ -45,7 +52,17 @@ public class Mesh {
         storeDataInAttributeList(0, 3, positions);
         storeDataInAttributeList(1, 2, uvs);
         unbindVAO();
-        return new Mesh(vaoID, indices.length);
+        return new Mesh(vaoID, indices.length, AssetManager.getDefaultTexture());
+    }
+
+    public static Mesh create(float[] positions, float[] uvs, float[] normals, int[] indices, String texName) {
+        int vaoID = createVAO();
+        bindIndicesBuffer(indices);
+        storeDataInAttributeList(0, 3, positions);
+        storeDataInAttributeList(1, 2, uvs);
+        storeDataInAttributeList(2, 3, normals);
+        unbindVAO();
+        return new Mesh(vaoID, indices.length, AssetManager.getTexture(texName));
     }
 
     public static Mesh create(float[] positions, float[] uvs, float[] normals, int[] indices) {
@@ -55,7 +72,7 @@ public class Mesh {
         storeDataInAttributeList(1, 2, uvs);
         storeDataInAttributeList(2, 3, normals);
         unbindVAO();
-        return new Mesh(vaoID, indices.length);
+        return new Mesh(vaoID, indices.length, AssetManager.getDefaultTexture());
     }
 
     private static int createVAO() {
@@ -82,19 +99,21 @@ public class Mesh {
             if (data.length > 16384) {
                 int left = data.length;
                 int begin = left;
+                int offset = 0;
                 int i = 0;
 
                 glBufferData(GL_ARRAY_BUFFER, (long) data.length * Float.BYTES, GL_STATIC_DRAW);
 
                 while (left > 0) {
                     try (MemoryStack s = stackPush()) {
-                        FloatBuffer b = s.callocFloat(4096);
                         int len = 4096;
                         if (left < len)
                             len = left % 4096;
+                        FloatBuffer b = s.callocFloat(len);
                         b.put(data, begin - left, len);
                         b.flip();
-                        glBufferSubData(GL_ARRAY_BUFFER, (long) i * 4096, b);
+                        glBufferSubData(GL_ARRAY_BUFFER, (long) offset, b);
+                        offset += len * Float.BYTES;
                         left -= 4096;
                         i++;
                     }
@@ -122,19 +141,21 @@ public class Mesh {
             if (indices.length > 16384) {
                 int left = indices.length;
                 int begin = left;
+                int offset = 0;
                 int i = 0;
 
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * Integer.BYTES, GL_STATIC_DRAW);
 
                 while (left > 0) {
                     try (MemoryStack s = stackPush()) {
-                        IntBuffer b = s.callocInt(4096);
                         int len = 4096;
                         if (left < len)
                             len = left % 4096;
+                        IntBuffer b = s.callocInt(len);
                         b.put(indices, begin - left, len);
                         b.flip();
-                        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, (long) i * 4096, b);
+                        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, (long) offset, b);
+                        offset += len * Integer.BYTES;
                         left -= 4096;
                         i++;
                     }

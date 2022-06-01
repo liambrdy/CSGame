@@ -94,6 +94,7 @@ public class LoadedShader {
     }
 
     public LoadedShader(DataInputStream stream) throws IOException {
+        long begin = System.nanoTime();
         int nameLen = stream.readInt();
         name = Unpacker.unpackString(stream, nameLen);
         int shaderCount = stream.readInt();
@@ -103,6 +104,8 @@ public class LoadedShader {
             String shader = Unpacker.unpackString(stream, strLen);
             shaders.put(LoadedShaderType.fromString(typeStr).ordinal(), shader);
         }
+        long end = System.nanoTime();
+        System.out.println("Took " + ((end - begin) / 1000000000.0) + " secs to load shader " + name);
     }
 
     public void write(DataOutputStream stream) throws IOException {

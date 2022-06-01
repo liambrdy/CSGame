@@ -19,12 +19,6 @@ public class MeshRenderer {
     }
 
     public void beginScene() {
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        shaderHandle.bind();
-        shaderHandle.setView(cameraHandle.getViewMatrix());
-        shaderHandle.setViewPos(cameraHandle.getPos());
     }
 
     public void render(Mesh mesh, StaticShader shader) {
@@ -40,6 +34,7 @@ public class MeshRenderer {
         shaderHandle.setTransform(transform);
         for (int i = 0; i < model.getMeshes().length; i++) {
             Mesh m = model.getMeshes()[i];
+            m.getTexture().bind();
             glBindVertexArray(m.getVertexArray());
             Material mat = model.getMaterial(i);
             mat.setUniforms(shaderHandle);
@@ -47,16 +42,16 @@ public class MeshRenderer {
         }
     }
 
-    public void render(Entity entity, StaticShader shader) {
-        shader.bind();
-        shader.setProjection(projection);
-        shader.setTransform(entity.getTransform());
+    public void render(Entity entity) {
+        shaderHandle.setProjection(projection);
+        shaderHandle.setTransform(entity.getTransform());
         Model model = entity.getModel();
         for (int i = 0; i < model.getMeshes().length; i++) {
             Mesh m = model.getMeshes()[i];
+            m.getTexture().bind();
             glBindVertexArray(m.getVertexArray());
             Material mat = model.getMaterial(i);
-            mat.setUniforms(shader);
+            mat.setUniforms(shaderHandle);
             glDrawElements(GL_TRIANGLES, m.getCount(), GL_UNSIGNED_INT, 0);
         }
     }

@@ -10,12 +10,15 @@ public class Material {
     public static final float DEFAULT_SHININESS = 32.0f;
     private Vector3f ambient, diffuse, specular;
     private float shininess;
+    private Texture texture;
+    private String textureName;
 
-    public Material(Vector3f am, Vector3f df, Vector3f sp, float sh) {
+    public Material(Vector3f am, Vector3f df, Vector3f sp, float sh, String texName) {
         ambient = am;
         diffuse = df;
         specular = sp;
         shininess = sh;
+        textureName = texName;
     }
 
     public void setUniforms(StaticShader shader) {
@@ -52,5 +55,9 @@ public class Material {
 
     public void setShininess(float shininess) {
         this.shininess = shininess;
+    }
+
+    public String getTextureName() {
+        return textureName;
     }
 }

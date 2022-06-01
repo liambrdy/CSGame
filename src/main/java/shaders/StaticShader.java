@@ -2,6 +2,7 @@ package shaders;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import renderer.Camera;
 import renderer.Light;
 
 import java.util.List;
@@ -12,7 +13,6 @@ public class StaticShader extends Shader {
 
     private int projectionLocation;
     private int viewLocation;
-    private int lightPosLocation;
     private int viewPosLocation;
     private int ambientColorLocation;
     private int diffuseColorLocation;
@@ -31,7 +31,6 @@ public class StaticShader extends Shader {
     protected void getAllUniformLocations() {
         projectionLocation = super.getUniformLocation("u_Projection");
         viewLocation = super.getUniformLocation("u_View");
-        lightPosLocation = super.getUniformLocation("u_LightPos");
         viewPosLocation = super.getUniformLocation("u_ViewPos");
         ambientColorLocation = super.getUniformLocation("u_Material.ambient");
         diffuseColorLocation = super.getUniformLocation("u_Material.diffuse");
@@ -63,10 +62,11 @@ public class StaticShader extends Shader {
     public void setView(Matrix4f view) {
         super.setMatrix(viewLocation, view);
     }
-    public void setLightPos(Vector3f pos) {
-        super.setFloat3(lightPosLocation, pos);
-    }
     public void setViewPos(Vector3f pos) { super.setFloat3(viewPosLocation, pos); }
+    public void setCamera(Camera cam) {
+        setView(cam.getViewMatrix());
+        setViewPos(cam.getPos());
+    }
     public void setMaterial(Vector3f amb, Vector3f dif, Vector3f spec, float shi) {
         super.setFloat3(ambientColorLocation, amb);
         super.setFloat3(diffuseColorLocation, dif);

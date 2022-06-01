@@ -27,12 +27,12 @@ public class Main {
         MasterRenderer.init(width, height);
 
         StaticShader shader = new StaticShader();
-        Camera camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f));
+        Camera camera = new Camera(new Vector3f(0.0f, 0.0f, 0.0f));
 
 //        Texture grass = new Texture("textures/grass.jpg");
 
 //        Model tree = new Model("Tree");
-        Entity tree = new Entity(new Model("low-poly-mill"), new Vector3f(0.0f, 0.0f, 0.0f), 10.0f);
+        Entity tree = new Entity(new Model("dungeon"), new Vector3f(0.0f, 0.0f, 0.0f), 5.0f);
 
         Vector3f lightPos = new Vector3f(-80.0f, 10.0f, 0.0f);
 
@@ -40,7 +40,8 @@ public class Main {
         Vector4f color = new Vector4f(0.8f, 0.7f, 0.2f, 1.0f);
 
         List<Light> lights = new ArrayList<>();
-        lights.add(new Light(new Vector3f(0.0f, 1000.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f)));
+        lights.add(new Light(new Vector3f(0.0f, 100.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f)));
+        lights.add(new Light(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(1.0f, 0.0f, 0.0f), new Vector3f(1.0f, 0.01f, 0.01f)));
 
         List<Entity> entities = new ArrayList<>();
         entities.add(tree);
@@ -58,7 +59,7 @@ public class Main {
 //            MasterRenderer.drawModel(tree.getModel(), tree.getTransform());
 //
 //            MasterRenderer.drawText("Hello world this is really great", pos, color);
-            MasterRenderer.drawScene(entities, lights);
+            MasterRenderer.drawScene(entities, lights, camera);
 
             MasterRenderer.endScene();
 

@@ -1,5 +1,6 @@
 package renderer;
 
+import assets.LoadedTexture;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
@@ -57,6 +58,27 @@ public class Texture {
             textureID = texBuffer.get(0);
             glBindTexture(GL_TEXTURE_2D, textureID);
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
+    }
+
+    public Texture(LoadedTexture texture) {
+        width = texture.getWidth();
+        height = texture.getHeight();
+        channels = texture.getChannels();
+        format = channels == 4 ? GL_RGBA : GL_RGB;
+
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer texBuffer = stack.callocInt(1);
+            glGenTextures(texBuffer);
+            textureID = texBuffer.get(0);
+            glBindTexture(GL_TEXTURE_2D, textureID);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, texture.getPixels());
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

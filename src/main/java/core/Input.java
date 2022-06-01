@@ -24,6 +24,9 @@ public class Input {
                     keysPressed[idx] = true;
                 }
                 keysDown[idx] = true;
+
+                if (key == GLFW_KEY_ESCAPE)
+                    glfwSetWindowShouldClose(handle, true);
             } else {
                 keysDown[idx] = false;
                 keysPressed[idx] = false;

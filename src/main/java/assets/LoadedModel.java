@@ -107,16 +107,25 @@ public class LoadedModel {
     }
 
     public LoadedModel(DataInputStream stream) throws IOException {
+        long begin = System.nanoTime();
         int nameLen = stream.readInt();
         name = Unpacker.unpackString(stream, nameLen);
         int materialCount = stream.readInt();
         for (int i = 0; i < materialCount; i++) {
-            materials.add(new Material(readVector3f(stream), readVector3f(stream), readVector3f(stream), stream.readFloat()));
+            Vector3f am = readVector3f(stream);
+            Vector3f df = readVector3f(stream);
+            Vector3f sp = readVector3f(stream);
+            float sh = stream.readFloat();
+            int texLen = stream.readInt();
+            String tex = Unpacker.unpackString(stream, texLen);
+            materials.add(new Material(am, df, sp, sh, tex));
         }
         int meshCount = stream.readInt();
         for (int i = 0; i < meshCount; i++) {
             meshes.add(new LoadedMesh(stream));
         }
+        long end = System.nanoTime();
+        System.out.println("Took " + ((end - begin) / 1000000000.0) + " secs to load mesh " + name);
     }
 
     public void write(DataOutputStream stream) throws IOException {
@@ -129,6 +138,8 @@ public class LoadedModel {
             writeVector3f(stream, mat.getDiffuse());
             writeVector3f(stream, mat.getSpecular());
             stream.writeFloat(mat.getShininess());
+            stream.writeInt(mat.getTextureName().length());
+            stream.writeBytes(mat.getTextureName());
         }
         stream.writeInt(meshes.size());
         for (LoadedMesh mesh : meshes) {
@@ -151,11 +162,15 @@ public class LoadedModel {
         AIColor4D color = AIColor4D.create();
 
         AIString path = AIString.calloc();
-        Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, null, null, null, null, null);
-        String texPath = path.dataString();
+        int result = Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, null, null, null, null, null);
+        String name = "N/A";
+        if (result == 0) {
+            String texPath = path.dataString();
+            name = texPath.substring(0, texPath.lastIndexOf("."));
+        }
 
         Vector3f ambient = Material.DEFAULT_AMBIENT;
-        int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0, color);
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0, color);
         if (result == 0)
             ambient = new Vector3f(color.r(), color.g(), color.b());
 
@@ -174,7 +189,7 @@ public class LoadedModel {
         if (result == 0)
             shininess = color.r();
 
-        materials.add(new Material(ambient, diffuse, specular, shininess));
+        materials.add(new Material(ambient, diffuse, specular, shininess, name));
     }
 
     private LoadedMesh processMesh(AIMesh aiMesh) {

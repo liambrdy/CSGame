@@ -63,6 +63,10 @@ public class MasterRenderer {
     }
 
     public static void beginScene() {
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        meshRenderer.beginScene();
         textRenderer.beginScene();
     }
 
@@ -75,10 +79,13 @@ public class MasterRenderer {
         textOrtho.ortho(0.0f, width, height, 0.0f, 0.0f, 10.0f);
     }
 
-    public static void drawScene(List<Entity> entities, List<Light> lights) {
+    public static void drawScene(List<Entity> entities, List<Light> lights, Camera camera) {
         staticShader.bind();
         staticShader.setLights(lights);
-
+        staticShader.setCamera(camera);
+        for (Entity e : entities) {
+            meshRenderer.render(e);
+        }
     }
 
 //    public static void drawModel(Model model, Matrix4f transform) {
