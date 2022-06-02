@@ -83,6 +83,13 @@ public abstract class Shader {
         glUniform1i(location, val);
     }
 
+    protected void setBoolean(int location, boolean bool) {
+        if (bool)
+            setInt(location, 1);
+        else
+            setInt(location, 0);
+    }
+
     protected void setFloat2(int location, Vector2f vec) {
         glUniform2f(location, vec.x, vec.y);
     }

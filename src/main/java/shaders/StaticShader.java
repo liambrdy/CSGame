@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import renderer.Camera;
 import renderer.Light;
+import renderer.Material;
 
 import java.util.List;
 import java.util.Vector;
@@ -18,6 +19,9 @@ public class StaticShader extends Shader {
     private int diffuseColorLocation;
     private int specularColorLocation;
     private int shininessLocation;
+    private int hasNormalMapLocation;
+    private int diffuseTextureLocation;
+    private int normalTextureLocation;
     private int transformLocation;
     private int[] lightPosLocations;
     private int[] lightColorLocations;
@@ -36,7 +40,10 @@ public class StaticShader extends Shader {
         diffuseColorLocation = super.getUniformLocation("u_Material.diffuse");
         specularColorLocation = super.getUniformLocation("u_Material.specular");
         shininessLocation = super.getUniformLocation("u_Material.shininess");
+        hasNormalMapLocation = super.getUniformLocation("u_Material.hasNormalMap");
         transformLocation = super.getUniformLocation("u_Transform");
+        diffuseTextureLocation = super.getUniformLocation("u_DiffuseTexture");
+        normalTextureLocation = super.getUniformLocation("u_NormalTexture");
 
         lightPosLocations = new int[MAX_LIGHTS];
         lightColorLocations = new int[MAX_LIGHTS];
@@ -67,11 +74,14 @@ public class StaticShader extends Shader {
         setView(cam.getViewMatrix());
         setViewPos(cam.getPos());
     }
-    public void setMaterial(Vector3f amb, Vector3f dif, Vector3f spec, float shi) {
-        super.setFloat3(ambientColorLocation, amb);
-        super.setFloat3(diffuseColorLocation, dif);
-        super.setFloat3(specularColorLocation, spec);
-        super.setFloat(shininessLocation, shi);
+    public void setMaterial(Material m) {
+        super.setFloat3(ambientColorLocation, m.getAmbient());
+        super.setFloat3(diffuseColorLocation, m.getDiffuse());
+        super.setFloat3(specularColorLocation, m.getSpecular());
+        super.setFloat(shininessLocation, m.getShininess());
+        super.setBoolean(hasNormalMapLocation, m.getHasNormalMap());
+        super.setInt(diffuseTextureLocation, 0);
+        super.setInt(normalTextureLocation, 1);
     }
 
     public void setTransform(Matrix4f transform) {

@@ -37,11 +37,13 @@ struct Material {
     vec3 diffuse;
     vec3 specular;
     float shininess;
+    int hasNormalMap;
 };
 
 uniform mat4 u_View;
 
-uniform sampler2D u_Texture;
+uniform sampler2D u_DiffuseTexture;
+uniform sampler2D u_NormalTexture;
 uniform vec3 u_ViewPos;
 uniform Material u_Material;
 
@@ -59,7 +61,11 @@ const float shineDamper = 32.0;
 const float reflectivity = 1.0;
 
 void main() {
-    vec3 norm = normalize(v_Normal);
+    vec3 n = v_Normal;
+    if (u_Material.hasNormalMap == 1) {
+        n = texture(u_NormalTexture, v_uvCoord).rgb;
+    }
+    vec3 norm = normalize(n);
     vec3 unitVectorToCamera = normalize((inverse(u_View) * vec4(0.0, 0.0, 0.0, 1.0)).xyz - v_Pos.xyz);
 
     vec3 totalDiff = vec3(0.0);
@@ -86,7 +92,7 @@ void main() {
     float ambientBrightness = 0.2;
     totalDiff = max(totalDiff, ambientBrightness);
 
-    vec4 sampled = texture(u_Texture, v_uvCoord);
+    vec4 sampled = texture(u_DiffuseTexture, v_uvCoord);
 
     vec3 result = totalDiff * u_Material.diffuse * sampled.xyz + totalSpec * u_Material.specular * u_Material.ambient*ambientBrightness;
     color = vec4(result, 1.0);

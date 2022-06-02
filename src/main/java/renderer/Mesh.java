@@ -18,12 +18,10 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 public class Mesh {
     private final int vao;
     private int count;
-    private Texture texture;
 
-    public Mesh(int vao, int count, Texture texture) {
+    public Mesh(int vao, int count) {
         this.vao = vao;
         this.count = count;
-        this.texture = texture;
     }
 
     public int getVertexArray() {
@@ -34,16 +32,12 @@ public class Mesh {
         return count;
     }
 
-    public Texture getTexture() {
-        return texture;
-    }
-
     public static Mesh create(float[] positions, int[] indices) {
         int vaoID = createVAO();
         bindIndicesBuffer(indices);
         storeDataInAttributeList(0, 2, positions);
         unbindVAO();
-        return new Mesh(vaoID, indices.length, AssetManager.getDefaultTexture());
+        return new Mesh(vaoID, indices.length);
     }
 
     public static Mesh create(float[] positions, int[] indices, float[] uvs) {
@@ -52,17 +46,7 @@ public class Mesh {
         storeDataInAttributeList(0, 3, positions);
         storeDataInAttributeList(1, 2, uvs);
         unbindVAO();
-        return new Mesh(vaoID, indices.length, AssetManager.getDefaultTexture());
-    }
-
-    public static Mesh create(float[] positions, float[] uvs, float[] normals, int[] indices, String texName) {
-        int vaoID = createVAO();
-        bindIndicesBuffer(indices);
-        storeDataInAttributeList(0, 3, positions);
-        storeDataInAttributeList(1, 2, uvs);
-        storeDataInAttributeList(2, 3, normals);
-        unbindVAO();
-        return new Mesh(vaoID, indices.length, AssetManager.getTexture(texName));
+        return new Mesh(vaoID, indices.length);
     }
 
     public static Mesh create(float[] positions, float[] uvs, float[] normals, int[] indices) {
@@ -72,7 +56,7 @@ public class Mesh {
         storeDataInAttributeList(1, 2, uvs);
         storeDataInAttributeList(2, 3, normals);
         unbindVAO();
-        return new Mesh(vaoID, indices.length, AssetManager.getDefaultTexture());
+        return new Mesh(vaoID, indices.length);
     }
 
     private static int createVAO() {

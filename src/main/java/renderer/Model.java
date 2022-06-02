@@ -19,18 +19,14 @@ public class Model {
         List<Material> loadedMaterials = mod.getMaterials();
         materials = new Material[loadedMaterials.size()];
         for (int i = 0; i < loadedMaterials.size(); i++) {
-            Material mat = loadedMaterials.get(i);
+            Material mat = new Material(loadedMaterials.get(i));
             materials[i] = mat;
         }
 
         meshes = new Mesh[loadedMeshes.size()];
         for (int i = 0; i < loadedMeshes.size(); i++) {
             LoadedModel.LoadedMesh m = loadedMeshes.get(i);
-            String tex = materials[m.getMaterialIndex()].getTextureName();
-            if (tex.equals("N/A"))
-                meshes[i] = Mesh.create(toFloatArray(m.getVertices()), toFloatArray(m.getTexCoords()), toFloatArray(m.getNormals()), toIntegerArray(m.getIndices()));
-            else
-                meshes[i] = Mesh.create(toFloatArray(m.getVertices()), toFloatArray(m.getTexCoords()), toFloatArray(m.getNormals()), toIntegerArray(m.getIndices()), tex);
+            meshes[i] = Mesh.create(toFloatArray(m.getVertices()), toFloatArray(m.getTexCoords()), toFloatArray(m.getNormals()), toIntegerArray(m.getIndices()));
             materialIdxs.add(m.getMaterialIndex());
         }
 //        int meshIndex = 0;

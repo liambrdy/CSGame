@@ -1,5 +1,6 @@
 package renderer;
 
+import assets.AssetManager;
 import org.joml.Vector3f;
 import shaders.StaticShader;
 
@@ -10,19 +11,64 @@ public class Material {
     public static final float DEFAULT_SHININESS = 32.0f;
     private Vector3f ambient, diffuse, specular;
     private float shininess;
-    private Texture texture;
-    private String textureName;
+    private boolean hasNormalMap;
+    private String diffuseTexName, normalTexName;
+    private Texture diffuseTex, normalTex;
 
-    public Material(Vector3f am, Vector3f df, Vector3f sp, float sh, String texName) {
+    public Material(Vector3f am, Vector3f df, Vector3f sp, float sh, String diffName, String normName) {
         ambient = am;
         diffuse = df;
         specular = sp;
         shininess = sh;
-        textureName = texName;
+        diffuseTexName = diffName;
+        normalTexName = normName;
+        hasNormalMap = !normalTexName.equals("N/A");
+
+        if (diffuseTexName.equals("N/A"))
+            diffuseTex = AssetManager.getDefaultTexture();
+        else
+            diffuseTex = AssetManager.getTexture(diffuseTexName);
+
+        if (hasNormalMap)
+            normalTex = AssetManager.getTexture(normalTexName);
     }
 
-    public void setUniforms(StaticShader shader) {
-        shader.setMaterial(ambient, diffuse, specular, shininess);
+    public Material(Vector3f am, Vector3f df, Vector3f sp, float sh, String diffName, String normName, boolean loading) {
+        ambient = am;
+        diffuse = df;
+        specular = sp;
+        shininess = sh;
+        diffuseTexName = diffName;
+        normalTexName = normName;
+        hasNormalMap = !normalTexName.equals("N/A");
+
+        if (!loading) {
+            if (diffuseTexName.equals("N/A"))
+                diffuseTex = AssetManager.getDefaultTexture();
+            else
+                diffuseTex = AssetManager.getTexture(diffuseTexName);
+
+            if (hasNormalMap)
+                normalTex = AssetManager.getTexture(normalTexName);
+        }
+    }
+
+    public Material(Material other) {
+        ambient = other.ambient;
+        diffuse = other.diffuse;
+        specular = other.specular;
+        shininess = other.shininess;
+        diffuseTexName = other.diffuseTexName;
+        normalTexName = other.normalTexName;
+        hasNormalMap = !normalTexName.equals("N/A");
+
+        if (diffuseTexName.equals("N/A"))
+            diffuseTex = AssetManager.getDefaultTexture();
+        else
+            diffuseTex = AssetManager.getTexture(diffuseTexName);
+
+        if (hasNormalMap)
+            normalTex = AssetManager.getTexture(normalTexName);
     }
 
     public Vector3f getAmbient() {
@@ -57,7 +103,22 @@ public class Material {
         this.shininess = shininess;
     }
 
-    public String getTextureName() {
-        return textureName;
+    public String getDiffuseTexName() {
+        return diffuseTexName;
+    }
+    public String getNormalTexName() {
+        return normalTexName;
+    }
+
+    public Texture getDiffuseTex() {
+        return diffuseTex;
+    }
+
+    public Texture getNormalTex() {
+        return normalTex;
+    }
+
+    public boolean getHasNormalMap() {
+        return hasNormalMap;
     }
 }

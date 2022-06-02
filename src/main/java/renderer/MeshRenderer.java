@@ -34,10 +34,13 @@ public class MeshRenderer {
         shaderHandle.setTransform(transform);
         for (int i = 0; i < model.getMeshes().length; i++) {
             Mesh m = model.getMeshes()[i];
-            m.getTexture().bind();
             glBindVertexArray(m.getVertexArray());
             Material mat = model.getMaterial(i);
-            mat.setUniforms(shaderHandle);
+            mat.getDiffuseTex().bind(0);
+            if (mat.getHasNormalMap()) {
+                mat.getNormalTex().bind(1);
+            }
+            shaderHandle.setMaterial(mat);
             glDrawElements(GL_TRIANGLES, m.getCount(), GL_UNSIGNED_INT, 0);
         }
     }
@@ -48,10 +51,13 @@ public class MeshRenderer {
         Model model = entity.getModel();
         for (int i = 0; i < model.getMeshes().length; i++) {
             Mesh m = model.getMeshes()[i];
-            m.getTexture().bind();
             glBindVertexArray(m.getVertexArray());
             Material mat = model.getMaterial(i);
-            mat.setUniforms(shaderHandle);
+            mat.getDiffuseTex().bind(0);
+            if (mat.getHasNormalMap()) {
+                mat.getNormalTex().bind(1);
+            }
+            shaderHandle.setMaterial(mat);
             glDrawElements(GL_TRIANGLES, m.getCount(), GL_UNSIGNED_INT, 0);
         }
     }

@@ -118,7 +118,9 @@ public class LoadedModel {
             float sh = stream.readFloat();
             int texLen = stream.readInt();
             String tex = Unpacker.unpackString(stream, texLen);
-            materials.add(new Material(am, df, sp, sh, tex));
+            int normLen = stream.readInt();
+            String norm = Unpacker.unpackString(stream, normLen);
+            materials.add(new Material(am, df, sp, sh, tex, norm, true));
         }
         int meshCount = stream.readInt();
         for (int i = 0; i < meshCount; i++) {
@@ -138,8 +140,10 @@ public class LoadedModel {
             writeVector3f(stream, mat.getDiffuse());
             writeVector3f(stream, mat.getSpecular());
             stream.writeFloat(mat.getShininess());
-            stream.writeInt(mat.getTextureName().length());
-            stream.writeBytes(mat.getTextureName());
+            stream.writeInt(mat.getDiffuseTexName().length());
+            stream.writeBytes(mat.getDiffuseTexName());
+            stream.writeInt(mat.getNormalTexName().length());
+            stream.writeBytes(mat.getNormalTexName());
         }
         stream.writeInt(meshes.size());
         for (LoadedMesh mesh : meshes) {
@@ -163,10 +167,17 @@ public class LoadedModel {
 
         AIString path = AIString.calloc();
         int result = Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, null, null, null, null, null);
-        String name = "N/A";
+        String diffName = "N/A";
         if (result == 0) {
             String texPath = path.dataString();
-            name = texPath.substring(0, texPath.lastIndexOf("."));
+            diffName = texPath.substring(0, texPath.lastIndexOf("."));
+        }
+
+        result = Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_NORMALS, 0, path, (IntBuffer) null, null, null, null, null, null);
+        String normName = "N/A";
+        if (result == 0) {
+            String texPath = path.dataString();
+            normName = texPath.substring(0, texPath.lastIndexOf("."));
         }
 
         Vector3f ambient = Material.DEFAULT_AMBIENT;
@@ -189,7 +200,7 @@ public class LoadedModel {
         if (result == 0)
             shininess = color.r();
 
-        materials.add(new Material(ambient, diffuse, specular, shininess, name));
+        materials.add(new Material(ambient, diffuse, specular, shininess, diffName, normName, true));
     }
 
     private LoadedMesh processMesh(AIMesh aiMesh) {
