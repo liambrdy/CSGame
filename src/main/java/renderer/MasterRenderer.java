@@ -36,6 +36,9 @@ public class MasterRenderer {
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
+//        glEnable(GL_CULL_FACE);
+
+//        glCullFace(GL_BACK);
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer flagBuffer = stack.callocInt(1);

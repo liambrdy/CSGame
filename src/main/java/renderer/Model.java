@@ -23,43 +23,52 @@ public class Model {
             materials[i] = mat;
         }
 
-        meshes = new Mesh[materials.length];
-        int meshIndex = 0;
-        for (int matId = 0; matId < materials.length; matId++) {
-            List<Integer> indices = new ArrayList<>();
-            List<Float> positions = new ArrayList<>();
-            List<Float> texs = new ArrayList<>();
-            List<Float> norms = new ArrayList<>();
-
-            int indexCount = 0;
-
-            for (LoadedModel.LoadedMesh m : loadedMeshes) {
-                if (m.getMaterialIndex() == matId) {
-                    positions.addAll(m.getVertices());
-                    texs.addAll(m.getTexCoords());
-                    norms.addAll(m.getNormals());
-
-                    if (indices.isEmpty()) {
-                        indices.addAll(m.getIndices());
-                        indexCount += m.getIndices().size();
-                    }
-                    else {
-                        for (int i = 0; i < m.getIndices().size(); i++) {
-                            indices.add(m.getIndices().get(i) + indexCount);
-                        }
-                        indexCount += m.getIndices().size();
-                    }
-//                    indices.addAll(m.getIndices());
-                }
-            }
-
-            String txName = materials[matId].getTextureName();
-            if (txName.equals("N/A"))
-                meshes[meshIndex] = Mesh.create(toFloatArray(positions), toFloatArray(texs), toFloatArray(norms), toIntegerArray(indices));
+        meshes = new Mesh[loadedMeshes.size()];
+        for (int i = 0; i < loadedMeshes.size(); i++) {
+            LoadedModel.LoadedMesh m = loadedMeshes.get(i);
+            String tex = materials[m.getMaterialIndex()].getTextureName();
+            if (tex.equals("N/A"))
+                meshes[i] = Mesh.create(toFloatArray(m.getVertices()), toFloatArray(m.getTexCoords()), toFloatArray(m.getNormals()), toIntegerArray(m.getIndices()));
             else
-                meshes[meshIndex] = Mesh.create(toFloatArray(positions), toFloatArray(texs), toFloatArray(norms), toIntegerArray(indices), txName);
-            meshIndex++;
+                meshes[i] = Mesh.create(toFloatArray(m.getVertices()), toFloatArray(m.getTexCoords()), toFloatArray(m.getNormals()), toIntegerArray(m.getIndices()), tex);
+            materialIdxs.add(m.getMaterialIndex());
         }
+//        int meshIndex = 0;
+//        for (int matId = 0; matId < materials.length; matId++) {
+//            List<Integer> indices = new ArrayList<>();
+//            List<Float> positions = new ArrayList<>();
+//            List<Float> texs = new ArrayList<>();
+//            List<Float> norms = new ArrayList<>();
+//
+//            int indexCount = 0;
+//
+//            for (LoadedModel.LoadedMesh m : loadedMeshes) {
+//                if (m.getMaterialIndex() == matId) {
+//                    positions.addAll(m.getVertices());
+//                    texs.addAll(m.getTexCoords());
+//                    norms.addAll(m.getNormals());
+//
+//                    if (indices.isEmpty()) {
+//                        indices.addAll(m.getIndices());
+//                        indexCount += m.getIndices().size();
+//                    }
+//                    else {
+//                        for (int i = 0; i < m.getIndices().size(); i++) {
+//                            indices.add(m.getIndices().get(i) + indexCount);
+//                        }
+//                        indexCount += m.getIndices().size();
+//                    }
+////                    indices.addAll(m.getIndices());
+//                }
+//            }
+//
+//            String txName = materials[matId].getTextureName();
+//            if (txName.equals("N/A"))
+//                meshes[meshIndex] = Mesh.create(toFloatArray(positions), toFloatArray(texs), toFloatArray(norms), toIntegerArray(indices));
+//            else
+//                meshes[meshIndex] = Mesh.create(toFloatArray(positions), toFloatArray(texs), toFloatArray(norms), toIntegerArray(indices), txName);
+//            meshIndex++;
+//        }
     }
 
     private float[] toFloatArray(List<Float> l) {
@@ -77,5 +86,5 @@ public class Model {
     }
 
     public Mesh[] getMeshes() { return meshes; }
-    public Material getMaterial(int i) { return materials[i]; }
+    public Material getMaterial(int i) { return materials[materialIdxs.get(i)]; }
 }
