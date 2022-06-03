@@ -99,7 +99,7 @@ public class TextRenderer {
             x.put(0, pos.x);
             y.put(0, pos.y);
             while (text.length() > 0) {
-                if (glyphCount <= MAX_GLYPHS)
+                if (glyphCount >= MAX_GLYPHS)
                     resetScene();
 
                 STBTTAlignedQuad q = font.getQuad(text.charAt(0), stack, x, y);

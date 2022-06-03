@@ -21,18 +21,24 @@ public class MasterRenderer {
     private static StaticShader staticShader;
     private static TextShader textShader;
 
+    private static SpriteRenderer spriteRenderer;
+
     private static Matrix4f projection;
     private static Matrix4f textOrtho;
+    private static Matrix4f spriteOrtho;
 
     public static void init(float width, float height) {
         projection = new Matrix4f().perspective((float)Math.toRadians(45.0f), width / height, 0.01f, 1000.0f);
         textOrtho = new Matrix4f().ortho(0.0f, width, height, 0.0f, 0.0f, 10.0f);
+        spriteOrtho = new Matrix4f().ortho(0.0f, width, 0.0f, height, 0.0f, 10.0f);
 
         staticShader = new StaticShader();
         meshRenderer = new MeshRenderer(projection, staticShader);
 
         textShader = new TextShader();
         textRenderer = new TextRenderer(textOrtho, textShader, new Font("c:/windows/fonts/times.ttf"));
+
+        spriteRenderer = new SpriteRenderer(new SpriteSheet("tile", 1, 1, 1), spriteOrtho);
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
@@ -71,10 +77,12 @@ public class MasterRenderer {
 
         meshRenderer.beginScene();
         textRenderer.beginScene();
+        spriteRenderer.beginScene();
     }
 
     public static void endScene() {
         textRenderer.endScene();
+        spriteRenderer.endScene();
     }
 
     public static void onWindowResize(float width, float height) {
@@ -91,16 +99,11 @@ public class MasterRenderer {
         }
     }
 
-//    public static void drawModel(Model model, Matrix4f transform) {
-//        MeshRenderer r = (MeshRenderer) renderers.get(RendererType.Mesh.ordinal());
-//        r.render(model, transform);
-//    }
-//
-//    public static void drawText(String text, Vector2f pos, Vector4f color) {
-//        if (!renderers.containsKey(RendererType.Text.ordinal()))
-//            throw new RuntimeException("Master Renderer does not contain a text renderer");
-//
-//        TextRenderer r = (TextRenderer) renderers.get(RendererType.Text.ordinal());
-//        r.render(text, pos, color);
-//    }
+    public static void drawText(String text, Vector2f pos, Vector4f color) {
+        textRenderer.render(text, pos, color);
+    }
+
+    public static void drawSprite(Vector2f pos, int spriteIndex) {
+        spriteRenderer.render(pos, spriteIndex);
+    }
 }
