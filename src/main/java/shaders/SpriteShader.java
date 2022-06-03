@@ -17,10 +17,10 @@ public class SpriteShader extends Shader {
     @Override
     protected void getAllUniformLocations() {
         projectionLocation = super.getUniformLocation("u_Projection");
-        spriteSheetLocation = super.getUniformLocation("u_spriteSheet.sheet");
-        spriteSheetColsLocation = super.getUniformLocation("u_spriteSheet.columns");
-        spriteSheetRowsLocation = super.getUniformLocation("u_spriteSheet.rows");
-        spriteSheetCountLocation = super.getUniformLocation("u_spriteSheet.count");
+        spriteSheetLocation = super.getUniformLocation("u_SpriteSheet.sheet");
+        spriteSheetColsLocation = super.getUniformLocation("u_SpriteSheet.columns");
+        spriteSheetRowsLocation = super.getUniformLocation("u_SpriteSheet.rows");
+        spriteSheetCountLocation = super.getUniformLocation("u_SpriteSheet.count");
     }
 
     @Override

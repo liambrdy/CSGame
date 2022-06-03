@@ -50,9 +50,16 @@ public class Main {
 //            renderer.render(mesh, shader);
 //            MasterRenderer.drawModel(tree.getModel(), tree.getTransform());
 //
-            MasterRenderer.drawText("Hello world this is really great", pos, color);
+//            MasterRenderer.drawText("Hello world this is really great", pos, color);
 
-            MasterRenderer.drawSprite(p, 0);
+//            MasterRenderer.drawSprite(new Vector2f(0.0f, 1.0f), 0);
+//            MasterRenderer.drawSprite(new Vector2f(1.0f, 0.0f), 0);
+//            MasterRenderer.drawSprite(new Vector2f(0.0f, 0.0f), 0);
+            for (int y = 20; y >= 0; y--) {
+                for (int x = 20; x >= 0; x--) {
+                    MasterRenderer.drawSprite(new Vector2f((float)x, (float)y), 5.0f,0);
+                }
+            }
 //            MasterRenderer.drawScene(entities, lights, camera);
 
             MasterRenderer.endScene();

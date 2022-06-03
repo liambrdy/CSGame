@@ -24,23 +24,26 @@ public class MasterRenderer {
     private static SpriteRenderer spriteRenderer;
 
     private static Matrix4f projection;
-    private static Matrix4f textOrtho;
-    private static Matrix4f spriteOrtho;
+    private static Matrix4f ortho;
 
-    public static void init(float width, float height) {
+    private static float width, height;
+
+    public static void init(float w, float h) {
+        width = w;
+        height = h;
+
         projection = new Matrix4f().perspective((float)Math.toRadians(45.0f), width / height, 0.01f, 1000.0f);
-        textOrtho = new Matrix4f().ortho(0.0f, width, height, 0.0f, 0.0f, 10.0f);
-        spriteOrtho = new Matrix4f().ortho(0.0f, width, 0.0f, height, 0.0f, 10.0f);
+        ortho = new Matrix4f().ortho(0.0f, width, height, 0.0f, -100.0f, 100.0f);
 
         staticShader = new StaticShader();
         meshRenderer = new MeshRenderer(projection, staticShader);
 
         textShader = new TextShader();
-        textRenderer = new TextRenderer(textOrtho, textShader, new Font("c:/windows/fonts/times.ttf"));
+        textRenderer = new TextRenderer(ortho, textShader, new Font("c:/windows/fonts/times.ttf"));
 
-        spriteRenderer = new SpriteRenderer(new SpriteSheet("tile", 1, 1, 1), spriteOrtho);
+        spriteRenderer = new SpriteRenderer(new SpriteSheet("tiles", 10, 11, 110), ortho);
 
-        glEnable(GL_DEPTH_TEST);
+//        glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
 //        glEnable(GL_CULL_FACE);
 
@@ -73,7 +76,7 @@ public class MasterRenderer {
 
     public static void beginScene() {
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         meshRenderer.beginScene();
         textRenderer.beginScene();
@@ -81,13 +84,19 @@ public class MasterRenderer {
     }
 
     public static void endScene() {
-        textRenderer.endScene();
         spriteRenderer.endScene();
+        textRenderer.endScene();
     }
 
-    public static void onWindowResize(float width, float height) {
+    public static void onWindowResize(float w, float h) {
+        width = w;
+        height = h;
+
+        projection.identity();
+        ortho.identity();
+
         projection.perspective((float)Math.toRadians(45.0f), width / height, 0.01f, 1000.0f);
-        textOrtho.ortho(0.0f, width, height, 0.0f, 0.0f, 10.0f);
+        ortho.ortho(0.0f, width, height, 0.0f, -100.0f, 100.0f);
     }
 
     public static void drawScene(List<Entity> entities, List<Light> lights, Camera camera) {
@@ -103,7 +112,15 @@ public class MasterRenderer {
         textRenderer.render(text, pos, color);
     }
 
-    public static void drawSprite(Vector2f pos, int spriteIndex) {
-        spriteRenderer.render(pos, spriteIndex);
+    public static void drawSprite(Vector2f pos, float size, int spriteIndex) {
+        spriteRenderer.render(pos, size, spriteIndex);
+    }
+
+    public static float getWidth() {
+        return width;
+    }
+
+    public static float getHeight() {
+        return height;
     }
 }

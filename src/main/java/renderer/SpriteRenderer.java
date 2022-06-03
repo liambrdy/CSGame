@@ -9,15 +9,32 @@ import shaders.SpriteShader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.sql.Array;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.opengl.GL40.*;
 
 public class SpriteRenderer {
+    public class SpriteEntry {
+        private Vector2f position;
+        private int spriteIndex;
+        private float size;
+
+        public SpriteEntry(Vector2f p, float s, int i) {
+            position = p;
+            size = s;
+            spriteIndex = i;
+        }
+    };
+
+    public class SpriteComparator implements Comparator<SpriteEntry> {
+        @Override
+        public int compare(SpriteEntry o1, SpriteEntry o2) {
+            Float first = o1.position.y;
+            Float second = o2.position.y;
+            return first.compareTo(second);
+        }
+    }
     private static final int MAX_INSTANCES = 1024;
     private static final int INSTANCE_DATA_LENGTH = 9;
 
@@ -30,7 +47,7 @@ public class SpriteRenderer {
     private int vao, vbo;
     private int pointer;
 
-    List<Map.Entry<Vector2f, Integer>> sprites;
+    List<SpriteEntry> sprites;
 
     public SpriteRenderer(SpriteSheet s, Matrix4f ortho) {
         shader = new SpriteShader();
@@ -74,20 +91,24 @@ public class SpriteRenderer {
         sprites.clear();
     }
 
-    public void render(Vector2f pos, int spriteIndex) {
+    public void render(Vector2f pos, float size, int spriteIndex) {
         Vector2f screen = new Vector2f(pos.x * 0.5f * sheet.getSpriteWidth() + pos.y * -0.5f * sheet.getSpriteHeight(),
                                        pos.x * 0.25f * sheet.getSpriteWidth() + pos.y * 0.25f * sheet.getSpriteHeight());
-        sprites.add(new AbstractMap.SimpleEntry<>(screen, spriteIndex));
+        screen.x -= sheet.getSpriteWidth() / 2.0f;
+        screen.x += MasterRenderer.getWidth() / 2.0f;
+        sprites.add(new SpriteEntry(screen, size, spriteIndex));
     }
 
     public void endScene() {
         pointer = 0;
         float[] data = new float[sprites.size() * INSTANCE_DATA_LENGTH];
-        float width = sheet.getSpriteWidth() / 4.0f;
-        float height = sheet.getSpriteHeight() / 4.0f;
-        for (Map.Entry<Vector2f, Integer> e : sprites) {
-            Vector2f pos = e.getKey();
-            int index = e.getValue();
+
+        Collections.sort(sprites, new SpriteComparator());
+        for (SpriteEntry s : sprites) {
+            float width = sheet.getSpriteWidth();
+            float height = sheet.getSpriteHeight();
+            Vector2f pos = s.position;
+            int index = s.spriteIndex;
             data[pointer++] = pos.x;
             data[pointer++] = pos.y;
             data[pointer++] = pos.x;

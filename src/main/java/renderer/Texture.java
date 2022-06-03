@@ -23,6 +23,7 @@ public class Texture {
 
             String realPath = "src/main/resources/" + path;
 
+            stbi_set_flip_vertically_on_load(true);
             ByteBuffer pixels = stbi_load(realPath, widthBuffer, heightBuffer, channelBuffer, STBI_default);
             if (pixels == null) {
                 throw new RuntimeException("Failed to load image " + path);

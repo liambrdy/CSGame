@@ -27,6 +27,7 @@ public class LoadedTexture {
             name = path.getName();
             name = name.substring(0, name.lastIndexOf("."));
 
+            stbi_set_flip_vertically_on_load(true);
             pixels = stbi_load(path.toString(), widthBuffer, heightBuffer, channelBuffer, STBI_default);
             if (pixels == null)
                 throw new RuntimeException("Failed to load texture: " + path);
