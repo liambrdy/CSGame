@@ -1,8 +1,15 @@
 package core;
 
+import org.joml.Vector2f;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.util.Arrays;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.system.MemoryStack.*;
 
 public class Input {
     private static boolean[] keysDown;
@@ -10,11 +17,28 @@ public class Input {
 
     private static long windowHandle;
 
+    private static final DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
+    private static final DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
+
+    private static float scale;
+
     public static void Init(long handle) {
         windowHandle = handle;
 
         keysDown = new boolean[Key.MAX.ordinal()];
         keysPressed = new boolean[Key.MAX.ordinal()];
+
+        try (MemoryStack stack = stackPush()) {
+            FloatBuffer xScale = stack.callocFloat(1);
+            FloatBuffer yScale = stack.callocFloat(1);
+            glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), xScale, yScale);
+            float xS = xScale.get(0);
+            float yS = yScale.get(0);
+            if (xS != yS)
+                throw new RuntimeException("Mismatching monitor scales: (" + xS + ", " + yS + ")");
+
+            scale = xS;
+        }
 
         glfwSetKeyCallback(handle, (window, key, scancode, action, mods) -> {
             int idx = glfwToEnum(key).ordinal();
@@ -84,4 +108,11 @@ public class Input {
 
     public static boolean isKeyDown(Key k) { return keysDown[k.ordinal()]; }
     public static boolean isKeyPressed(Key k) { return keysPressed[k.ordinal()]; }
+
+    public static Vector2f getMousePos() {
+        glfwGetCursorPos(windowHandle, xBuffer, yBuffer);
+        Vector2f p = new Vector2f((float)xBuffer.get(0), (float)yBuffer.get(0));
+        p.div(scale);
+        return p;
+    }
 }

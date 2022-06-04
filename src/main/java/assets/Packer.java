@@ -122,7 +122,7 @@ public class Packer {
 
     public static void main(String[] args) throws IOException {
         pack("src/main/resources", "assets.bin");
-        PackedAssets assets = Unpacker.unpack("assets.bin");
+        PackedAssets assets = Unpacker.unpack("assets.bin", false);
         System.out.println("UnpackedA " + assets.models.size() + " models, " + assets.textures.size() + " textures, and " + assets.shaders.size() + " shaders");
     }
 }

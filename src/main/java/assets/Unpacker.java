@@ -5,9 +5,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Unpacker {
-    public static Packer.PackedAssets unpack(String assetPath) {
+    public static Packer.PackedAssets unpack(String assetPath, boolean inJar) {
         Packer.PackedAssets assets = new Packer.PackedAssets();
-        try (FileInputStream fileStream = new FileInputStream(assetPath)) {
+        try {
+            InputStream fileStream;
+            if (inJar)
+                fileStream = Unpacker.class.getResourceAsStream("/" + assetPath);
+            else
+                fileStream = new FileInputStream(assetPath);
             long begin = System.nanoTime();
             DataInputStream stream = new DataInputStream(fileStream);
             String header = unpackString(stream, 4);

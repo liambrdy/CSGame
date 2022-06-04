@@ -1,6 +1,8 @@
 package renderer;
 
 import assets.AssetManager;
+import org.joml.Vector2f;
+import org.joml.Vector4f;
 
 public class SpriteSheet {
     private Texture sheet;
@@ -9,7 +11,7 @@ public class SpriteSheet {
     private int spriteWidth, spriteHeight;
 
     public SpriteSheet(String textureName, int r, int c, int count) {
-        sheet = AssetManager.getTexture(textureName);
+        sheet = new Texture(AssetManager.getLoadedTexture(textureName), true);
         rows = r;
         columns = c;
         spriteCount = count;

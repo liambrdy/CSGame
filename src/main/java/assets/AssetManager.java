@@ -18,17 +18,15 @@ public class AssetManager {
 
     private static Texture defaultTexture;
 
-    public static void init(String path) {
-        assets = Unpacker.unpack(path);
+    public static void init(String path, boolean inJar) {
+        assets = Unpacker.unpack(path, inJar);
 
         shaders = new HashMap<String, LoadedShader>();
         textures = new HashMap<String, LoadedTexture>();
         models = new HashMap<String, LoadedModel>();
-        glTextures = new HashMap<String, Texture>();
 
         for (LoadedTexture tx : assets.getTextures()) {
             textures.put(tx.getName(), tx);
-            glTextures.put(tx.getName(), new Texture(tx));
         }
 
         for (LoadedShader sh : assets.getShaders())
@@ -53,7 +51,6 @@ public class AssetManager {
 
         for (LoadedTexture tx : assets.getTextures()) {
             textures.put(tx.getName(), tx);
-            glTextures.put(tx.getName(), new Texture(tx));
         }
 
         for (LoadedShader sh : assets.getShaders())

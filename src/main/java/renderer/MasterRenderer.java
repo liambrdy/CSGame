@@ -41,7 +41,7 @@ public class MasterRenderer {
         textShader = new TextShader();
         textRenderer = new TextRenderer(ortho, textShader, new Font("c:/windows/fonts/times.ttf"));
 
-        spriteRenderer = new SpriteRenderer(new SpriteSheet("tiles", 10, 11, 110), ortho);
+        spriteRenderer = new SpriteRenderer(new SpriteSheet("demo_sheet", 10, 4, 40), ortho);
 
 //        glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
@@ -112,8 +112,8 @@ public class MasterRenderer {
         textRenderer.render(text, pos, color);
     }
 
-    public static void drawSprite(Vector2f pos, float size, int spriteIndex) {
-        spriteRenderer.render(pos, size, spriteIndex);
+    public static void drawSprite(Vector2f pos, float height, float size, float x, float y) {
+        spriteRenderer.render(pos, height, size, x, y);
     }
 
     public static float getWidth() {

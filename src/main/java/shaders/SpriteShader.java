@@ -6,9 +6,6 @@ import renderer.SpriteSheet;
 public class SpriteShader extends Shader {
     private int projectionLocation;
     private int spriteSheetLocation;
-    private int spriteSheetColsLocation;
-    private int spriteSheetRowsLocation;
-    private int spriteSheetCountLocation;
 
     public SpriteShader() {
         super("sprite");
@@ -17,10 +14,7 @@ public class SpriteShader extends Shader {
     @Override
     protected void getAllUniformLocations() {
         projectionLocation = super.getUniformLocation("u_Projection");
-        spriteSheetLocation = super.getUniformLocation("u_SpriteSheet.sheet");
-        spriteSheetColsLocation = super.getUniformLocation("u_SpriteSheet.columns");
-        spriteSheetRowsLocation = super.getUniformLocation("u_SpriteSheet.rows");
-        spriteSheetCountLocation = super.getUniformLocation("u_SpriteSheet.count");
+        spriteSheetLocation = super.getUniformLocation("u_SpriteSheet");
     }
 
     @Override
@@ -32,11 +26,8 @@ public class SpriteShader extends Shader {
         super.bindAttribute(4, "a_SpriteIndex");
     }
 
-    public void setSpriteSheet(SpriteSheet sheet) {
+    public void setSpriteSheet() {
         super.setInt(spriteSheetLocation, 0);
-        super.setFloat(spriteSheetColsLocation, sheet.getColumns());
-        super.setFloat(spriteSheetRowsLocation, sheet.getRows());
-        super.setInt(spriteSheetCountLocation, sheet.getSpriteCount());
     }
 
     public void setProjection(Matrix4f mat) {
