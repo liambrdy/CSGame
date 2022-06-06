@@ -3,6 +3,7 @@ package renderer;
 import org.joml.Matrix2f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 import shaders.SpriteShader;
@@ -49,6 +50,16 @@ public class SpriteRenderer {
         }
     };
 
+    public class TextureEntry {
+        private Texture texture;
+        private Vector4f rect;
+
+        public TextureEntry(Texture t, Vector4f r) {
+            texture = t;
+            rect = r;
+        }
+    }
+
     public class SpriteComparator implements Comparator<SpriteEntry> {
         @Override
         public int compare(SpriteEntry o1, SpriteEntry o2) {
@@ -69,7 +80,7 @@ public class SpriteRenderer {
     private int pointer, count;
 
     List<SpriteEntry> sprites;
-    List<ArrayList<SpriteEntry>> renderList;
+    List<TextureEntry> textures;
 
     public SpriteRenderer(SpriteSheet s, Matrix4f ortho) {
         shader = new SpriteShader();
@@ -77,7 +88,7 @@ public class SpriteRenderer {
         projection = ortho;
 
         sprites = new ArrayList<>();
-        renderList = new ArrayList<>();
+        textures = new ArrayList<>();
 
         pointer = 0;
         try (MemoryStack stack = stackPush()) {
@@ -105,8 +116,8 @@ public class SpriteRenderer {
     }
 
     public void beginScene() {
-        renderList.clear();
         sprites.clear();
+        textures.clear();
         count = 0;
     }
 
@@ -115,32 +126,31 @@ public class SpriteRenderer {
 //        Vector2f screen = pos.mul(m);
 //        Vector2f screen = new Vector2f(pos.x * 0.5f * sheet.getSpriteWidth() * sheet.getScale() + pos.y * -0.5f * sheet.getSpriteHeight() * sheet.getScale(),
 //                                       pos.x * 0.25f * sheet.getSpriteWidth() * sheet.getScale() + pos.y * 0.25f * sheet.getSpriteHeight() * sheet.getScale());
-        if (count >= MAX_INSTANCES)
-            beginNewList();
         Vector2f screen = sheet.toScreen(pos);
 
         sprites.add(new SpriteEntry(screen, height, x, y));
         count++;
     }
 
-    private void beginNewList() {
-        count = 0;
-        renderList.add(new ArrayList<>(sprites));
-        sprites.clear();
+    public void renderTexture(Vector4f rect, Texture txt) {
+        textures.add(new TextureEntry(txt, rect));
     }
+
 
     public void endScene() {
         float sheetWidth = sheet.getSheet().getWidth();
         float sheetHeight = sheet.getSheet().getHeight();
 
-        if (!sprites.isEmpty())
-            renderList.add(new ArrayList<>(sprites));
-
-        for (ArrayList<SpriteEntry> entries : renderList) {
+        sprites.sort(new SpriteComparator());
+        int entryCount = sprites.size() > MAX_INSTANCES ? sprites.size() / MAX_INSTANCES : 1;
+        for (int i = 0; i < entryCount; i++) {
+            ArrayList<SpriteEntry> entries = new ArrayList<>();
+            for (int j = 0; j < MAX_INSTANCES; j++) {
+                if (i * MAX_INSTANCES + j < sprites.size())
+                    entries.add(sprites.get(i * MAX_INSTANCES + j));
+            }
             pointer = 0;
-            System.out.println(entries.size());
             float[] data = new float[entries.size() * INSTANCE_DATA_LENGTH];
-            entries.sort(new SpriteComparator());
             for (SpriteEntry s : entries) {
                 float width = sheet.getSpriteWidth();
                 float height = sheet.getSpriteHeight();
@@ -180,6 +190,41 @@ public class SpriteRenderer {
 
 //        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, sprites.size());
             glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, entries.size());
+        }
+
+        for (TextureEntry e : textures) {
+            pointer = 0;
+            float[] data = new float[INSTANCE_DATA_LENGTH];
+
+            data[pointer++] = e.rect.x;
+            data[pointer++] = e.rect.y;
+            data[pointer++] = e.rect.x;
+            data[pointer++] = e.rect.y + e.rect.w;
+            data[pointer++] = e.rect.x + e.rect.z;
+            data[pointer++] = e.rect.y;
+            data[pointer++] = e.rect.x + e.rect.z;
+            data[pointer++] = e.rect.y + e.rect.w;
+            data[pointer++] = 0.0f;
+            data[pointer++] = 1.0f;
+            data[pointer++] = 0.0f;
+            data[pointer++] = 0.0f;
+            data[pointer++] = 1.0f;
+            data[pointer++] = 1.0f;
+            data[pointer++] = 1.0f;
+            data[pointer++] = 0.0f;
+
+            glBindVertexArray(vao);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferSubData(GL_ARRAY_BUFFER, (long) 0, data);
+
+            shader.bind();
+            shader.setSpriteSheet();
+            shader.setProjection(projection);
+
+            e.texture.bind();
+
+//        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, sprites.size());
+            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, textures.size());
         }
     }
 }

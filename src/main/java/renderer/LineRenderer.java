@@ -95,12 +95,12 @@ public class LineRenderer {
             data[pointer++] = e.color.z;
             data[pointer++] = e.color.w;
         }
-        buffer.put(data);
-        buffer.flip();
+//        buffer.put(data);
+//        buffer.flip();
 
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, data);
 
         shader.bind();
         shader.setProjection(projection);

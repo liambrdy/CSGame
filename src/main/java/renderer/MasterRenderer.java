@@ -4,12 +4,14 @@ import game.Entity;
 import org.joml.*;
 import org.lwjgl.opengl.GLDebugMessageCallback;
 import org.lwjgl.system.MemoryStack;
+import org.w3c.dom.Text;
 import shaders.StaticShader;
 import shaders.TextShader;
 
 import javax.print.attribute.standard.SheetCollate;
 import java.lang.Math;
 import java.nio.IntBuffer;
+import java.text.NumberFormat;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL44.*;
@@ -131,6 +133,10 @@ public class MasterRenderer {
         spriteRenderer.render(pos, height, x, y);
     }
 
+    public static void drawTexture(Vector4f rect, Texture txt) {
+        spriteRenderer.renderTexture(rect, txt);
+    }
+
     public static void drawLine(Vector2f p0, Vector2f p1, Vector4f color) {
         lineRenderer.render(p0, p1, color);
     }
@@ -141,6 +147,28 @@ public class MasterRenderer {
         sp0.x += currentSheet.getSpriteWidth() * currentSheet.getScale() / 2.0f;
         sp1.x += currentSheet.getSpriteWidth() * currentSheet.getScale() / 2.0f;
         drawLine(sp0, sp1, color);
+    }
+
+    public static void drawIsoTile(Vector2f tile, Vector4f color) {
+        Vector2f p0 = tile;
+        Vector2f p1 = new Vector2f(tile.x, tile.y + 1);
+        Vector2f p2 = new Vector2f(tile.x + 1, tile.y + 1);
+        Vector2f p3 = new Vector2f(tile.x + 1, tile.y);
+        drawIsoLine(p0, p1, color);
+        drawIsoLine(p1, p2, color);
+        drawIsoLine(p2, p3, color);
+        drawIsoLine(p3, p0, color);
+    }
+
+    public static void drawSquare(Vector4f rect, Vector4f color) {
+        Vector2f p0 = new Vector2f(rect.x, rect.y);
+        Vector2f p1 = new Vector2f(rect.x, rect.y + rect.w);
+        Vector2f p2 = new Vector2f(rect.x + rect.z, rect.y + rect.w);
+        Vector2f p3 = new Vector2f(rect.x + rect.z, rect.y);
+        drawLine(p0, p1, color);
+        drawLine(p1, p2, color);
+        drawLine(p2, p3, color);
+        drawLine(p3, p0, color);
     }
 
     public static void drawCoordinateSystem() {
