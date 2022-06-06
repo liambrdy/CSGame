@@ -7,6 +7,7 @@ import org.lwjgl.system.MemoryStack;
 import shaders.StaticShader;
 import shaders.TextShader;
 
+import javax.print.attribute.standard.SheetCollate;
 import java.lang.Math;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -22,6 +23,9 @@ public class MasterRenderer {
     private static TextShader textShader;
 
     private static SpriteRenderer spriteRenderer;
+    private static SpriteSheet currentSheet;
+
+    private static LineRenderer lineRenderer;
 
     private static Matrix4f projection;
     private static Matrix4f ortho;
@@ -41,7 +45,10 @@ public class MasterRenderer {
         textShader = new TextShader();
         textRenderer = new TextRenderer(ortho, textShader, new Font("c:/windows/fonts/times.ttf"));
 
-        spriteRenderer = new SpriteRenderer(new SpriteSheet("demo_sheet", 10, 4, 40), ortho);
+        currentSheet = new SpriteSheet("tiles", 10, 11, 110, 3.0f);
+        spriteRenderer = new SpriteRenderer(currentSheet, ortho);
+
+        lineRenderer = new LineRenderer(ortho);
 
 //        glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
@@ -74,17 +81,25 @@ public class MasterRenderer {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
+    public static void enableVertexAttribute(int index, int size, int totalSize, int offset) {
+        glEnableVertexAttribArray(index);
+        glVertexAttribPointer(index, size, GL_FLOAT, false, totalSize * Float.BYTES, (long) offset * Float.BYTES);
+        glVertexAttribDivisor(index, 1);
+    }
+
     public static void beginScene() {
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        meshRenderer.beginScene();
+        //meshRenderer.beginScene();
         textRenderer.beginScene();
         spriteRenderer.beginScene();
+        lineRenderer.beginScene();
     }
 
     public static void endScene() {
         spriteRenderer.endScene();
+        lineRenderer.endScene();
         textRenderer.endScene();
     }
 
@@ -112,8 +127,34 @@ public class MasterRenderer {
         textRenderer.render(text, pos, color);
     }
 
-    public static void drawSprite(Vector2f pos, float height, float size, float x, float y) {
-        spriteRenderer.render(pos, height, size, x, y);
+    public static void drawSprite(Vector2f pos, float height, float x, float y) {
+        spriteRenderer.render(pos, height, x, y);
+    }
+
+    public static void drawLine(Vector2f p0, Vector2f p1, Vector4f color) {
+        lineRenderer.render(p0, p1, color);
+    }
+
+    public static void drawIsoLine(Vector2f p0, Vector2f p1, Vector4f color) {
+        Vector2f sp0 = currentSheet.toScreen(p0);
+        Vector2f sp1 = currentSheet.toScreen(p1);
+        sp0.x += currentSheet.getSpriteWidth() * currentSheet.getScale() / 2.0f;
+        sp1.x += currentSheet.getSpriteWidth() * currentSheet.getScale() / 2.0f;
+        drawLine(sp0, sp1, color);
+    }
+
+    public static void drawCoordinateSystem() {
+        for (int col = 0; col < 41; col++) {
+//            Vector2f p0 = currentSheet.toScreen(new Vector2f(col, 0));
+//            Vector2f p1 = currentSheet.toScreen(new Vector2f(col, col));
+            drawIsoLine(new Vector2f(col, 0), new Vector2f(col, 40), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+        }
+
+        for (int row = 0; row < 41; row++) {
+//            Vector2f p0 = currentSheet.toScreen(new Vector2f(col, 0));
+//            Vector2f p1 = currentSheet.toScreen(new Vector2f(col, col));
+            drawIsoLine(new Vector2f(0, row), new Vector2f(40, row), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+        }
     }
 
     public static float getWidth() {
@@ -122,5 +163,9 @@ public class MasterRenderer {
 
     public static float getHeight() {
         return height;
+    }
+
+    public static SpriteSheet getCurrentSheet() {
+        return currentSheet;
     }
 }

@@ -37,4 +37,5 @@ uniform sampler2D u_SpriteSheet;
 void main() {
     vec4 sampled = texture(u_SpriteSheet, v_TexCoord);
     color = sampled;
+    //color = vec4(0.8, 0.2, 0.2, 0.5);
 }

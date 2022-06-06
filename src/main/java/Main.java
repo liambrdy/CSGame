@@ -39,37 +39,11 @@ public class Main {
 
         MasterRenderer.init(width, height);
 
-//        Camera camera = new Camera(new Vector3f(0.0f, 0.0f, 0.0f));
-
-//        Texture grass = new Texture("textures/grass.jpg");
-
-//        Model tree = new Model("Tree");
-//        Entity tree = new Entity(new Model("dungeon_norm"), new Vector3f(0.0f, 0.0f, 0.0f), 5.0f);
-
-        Vector2f pos = new Vector2f(100.0f, 100.0f);
-        Vector4f color = new Vector4f(0.8f, 0.2f, 0.2f, 1.0f);
-
-        Vector2f p = new Vector2f(0.0f, 0.0f);
-
-        screenToTile = new Matrix2f();
-        screenToTile.m00 = 0.5f * 32.0f * 1.0f;
-        screenToTile.m01 = 0.25f * 32.0f * 1.0f;
-        screenToTile.m10 = -0.5f * 32.0f * 1.0f;
-        screenToTile.m11 = 0.25f * 32.0f * 1.0f;
-        screenToTile.invert();
-
         while (!window.shouldClose()) {
             window.update();
-//            camera.move();
 
             MasterRenderer.beginScene();
 
-//            grass.bind();
-
-
-//            renderer.render(mesh, shader);
-//            MasterRenderer.drawModel(tree.getModel(), tree.getTransform());
-//
 //            MasterRenderer.drawText("Hello world this is really great", pos, color);
 
 //            MasterRenderer.drawSprite(new Vector2f(0.0f, 1.0f), 0);
@@ -84,12 +58,19 @@ public class Main {
                     if ((int)selected.x == x && (int)selected.y == y) {
                         h = 5.0f;
                     }
-//                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), (float)Math.sin(x + y + glfwGetTime() * 10.0f) * 10.0f, 1.0f, 0.0f, 9.0f);
-                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), h, 1.0f, 0.0f, 9.0f);
+//                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), (float)Math.sin((30 - x) + y + glfwGetTime() * 10.0f) * 5.0f + (float)Math.sin(x + y + glfwGetTime() * 10.0f) * 5.0f, 4.0f, 9.0f);
+                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), (float)Math.sin((30 - x) + y + glfwGetTime() * 2.0f) * 7.0f, 4.0f, 9.0f);
+//                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), 0.0f, 4.0f, 9.0f);
+                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), -32.0f * 1.0f, 0.0f, 9.0f);
                 }
 //                h += 2.0f;
             }
-//            MasterRenderer.drawScene(entities, lights, camera);
+
+//            MasterRenderer.drawLine(new Vector2f(0.0f, 0.0f), new Vector2f(width, height), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+//            MasterRenderer.drawCoordinateSystem();
+//            MasterRenderer.drawSprite(new Vector2f(10.0f, 10.0f), 0.0f, 1.0f, 9.0f);
+//            MasterRenderer.drawSprite(new Vector2f(10.0f, 11.0f), 0.0f, 1.0f, 9.0f);
+//            MasterRenderer.drawIsoLine(new Vector2f(10.0f, 10.0f), new Vector2f(10.0f, 11.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
             MasterRenderer.endScene();
 
@@ -97,13 +78,11 @@ public class Main {
         }
     }
 
-    private static Matrix2f screenToTile;
-
     private static Vector2f getTileCoordinate() {
         Vector2f pos = Input.getMousePos();
-        pos.x -= MasterRenderer.getWidth() / 2.0f;
+//        pos.x -= MasterRenderer.getWidth() / 2.0f;
 //        pos.x += 32.0f / 2.0f;
-        return pos.mul(screenToTile);
+        return MasterRenderer.getCurrentSheet().toTile(pos);
     }
 
     private static float map(float in, float inMin, float inMax, float outMin, float outMax) {
