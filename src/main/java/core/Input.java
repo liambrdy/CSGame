@@ -24,6 +24,8 @@ public class Input {
     private static final DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
 
     private static float scale;
+    private static float scroll;
+    private static boolean scrolledThisFrame;
 
     public static void Init(long handle) {
         windowHandle = handle;
@@ -33,6 +35,8 @@ public class Input {
 
         buttonsDown = new boolean[Button.MAX.ordinal()];
         buttonsClicked = new boolean[Button.MAX.ordinal()];
+        
+        scrolledThisFrame = false;
 
         try (MemoryStack stack = stackPush()) {
             FloatBuffer xScale = stack.callocFloat(1);
@@ -76,11 +80,18 @@ public class Input {
                 buttonsClicked[idx] = false;
             }
         });
+
+        glfwSetScrollCallback(windowHandle, (window, x, y) -> {
+            scroll = (float)y;
+            scrolledThisFrame = true;
+        });
     }
 
     public static void Update() {
         Arrays.fill(keysPressed, false);
         Arrays.fill(buttonsClicked, false);
+        scrolledThisFrame = false;
+        scroll = 0.0f;
     }
 
     private static int glfwToEnumKey(Key k) {
@@ -149,5 +160,13 @@ public class Input {
         Vector2f p = new Vector2f((float)xBuffer.get(0), (float)yBuffer.get(0));
         p.div(scale);
         return p;
+    }
+
+    public static float getScroll() {
+        return scroll;
+    }
+
+    public static boolean scrolledThisFrame() {
+        return scrolledThisFrame;
     }
 }

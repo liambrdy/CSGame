@@ -74,6 +74,7 @@ public class SpriteRenderer {
     private SpriteShader shader;
     private SpriteSheet sheet;
     private Matrix4f projection;
+    private Vector2f offset;
 
     private static final FloatBuffer spriteBuffer = BufferUtils.createFloatBuffer(MAX_INSTANCES * INSTANCE_DATA_LENGTH);
     private int vao, vbo;
@@ -89,6 +90,8 @@ public class SpriteRenderer {
 
         sprites = new ArrayList<>();
         textures = new ArrayList<>();
+
+        offset = new Vector2f();
 
         pointer = 0;
         try (MemoryStack stack = stackPush()) {
@@ -155,8 +158,9 @@ public class SpriteRenderer {
                 float width = sheet.getSpriteWidth();
                 float height = sheet.getSpriteHeight();
                 float scale = sheet.getScale();
-                Vector2f pos = s.position;
+                Vector2f pos = new Vector2f(s.position);
                 pos.y -= s.height;
+                pos.add(offset);
 
                 data[pointer++] = pos.x;
                 data[pointer++] = pos.y;
@@ -226,5 +230,9 @@ public class SpriteRenderer {
 //        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, sprites.size());
             glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, textures.size());
         }
+    }
+
+    public void setOffset(Vector2f screen) {
+        offset = screen;
     }
 }

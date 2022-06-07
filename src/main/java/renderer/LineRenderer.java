@@ -19,11 +19,13 @@ public class LineRenderer {
     public class LineEntry {
         private Vector2f p0, p1;
         private Vector4f color;
+        private Vector2f offset;
 
-        public LineEntry(Vector2f point0, Vector2f point1, Vector4f c) {
+        public LineEntry(Vector2f point0, Vector2f point1, Vector4f c, Vector2f o) {
             p0 = point0;
             p1 = point1;
             color = c;
+            offset = o;
         }
     };
 
@@ -40,13 +42,16 @@ public class LineRenderer {
     private List<LineEntry> lines = new ArrayList<>();
 
     private Matrix4f projection;
+    private Vector2f offset;
 
     public LineRenderer(Matrix4f proj) {
         projection = proj;
 
         shader = new LineShader();
 
-        glLineWidth(2.5f);
+        offset = new Vector2f();
+
+        glLineWidth(1.5f);
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer vaoBuffer = stack.callocInt(1);
@@ -71,7 +76,11 @@ public class LineRenderer {
     }
 
     public void render(Vector2f p0, Vector2f p1, Vector4f color) {
-        lines.add(new LineEntry(p0, p1, color));
+        lines.add(new LineEntry(p0, p1, color, new Vector2f(0.0f)));
+    }
+
+    public void render(Vector2f p0, Vector2f p1, Vector4f color, Vector2f offset) {
+        lines.add(new LineEntry(p0, p1, color, offset));
     }
 
     public void beginScene() {
@@ -82,10 +91,13 @@ public class LineRenderer {
         pointer = 0;
         float[] data = new float[lines.size() * INSTANCE_DATA_LENGTH];
         for (LineEntry e : lines) {
-            data[pointer++] = e.p0.x;
-            data[pointer++] = e.p0.y;
-            data[pointer++] = e.p1.x;
-            data[pointer++] = e.p1.y;
+            Vector2f p0 = new Vector2f(e.p0).add(e.offset);
+            Vector2f p1 = new Vector2f(e.p1).add(e.offset);
+
+            data[pointer++] = p0.x;
+            data[pointer++] = p0.y;
+            data[pointer++] = p1.x;
+            data[pointer++] = p1.y;
             data[pointer++] = e.color.x;
             data[pointer++] = e.color.y;
             data[pointer++] = e.color.z;
@@ -106,5 +118,9 @@ public class LineRenderer {
         shader.setProjection(projection);
 
         glDrawArraysInstanced(GL_LINES, 0, 2, lines.size());
+    }
+
+    public void setOffset(Vector2f offset) {
+        this.offset = offset;
     }
 }

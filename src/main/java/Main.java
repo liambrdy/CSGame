@@ -48,33 +48,9 @@ public class Main {
 
             MasterRenderer.beginScene();
 
-//            MasterRenderer.drawText("Hello world this is really great", pos, color);
-
-//            MasterRenderer.drawSprite(new Vector2f(0.0f, 1.0f), 0);
-//            MasterRenderer.drawSprite(new Vector2f(1.0f, 0.0f), 0);
-//            MasterRenderer.drawSprite(new Vector2f(1.0f, 1.0f), 32.0f*2, 2.0f, 0.0f, 9.0f);
             sc.drawEditor();
             sc.render();
-//            Vector2f selected = getTileCoordinate();
-//            System.out.println("(" + (int)selected.x + ", " + (int)selected.y + ")");
-//            for (int y = 30; y >= 0; y--) {
-//                for (int x = 30; x >= 0; x--) {
-//                    float h = 0.0f;
-//                    if ((int)selected.x == x && (int)selected.y == y) {
-//                        MasterRenderer.drawIsoTile(new Vector2f((float)x, (float)y), new Vector4f(1.0f, 0.2f, 0.2f, 0.8f));
-//                    }
-////                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), (float)Math.sin((30 - x) + y + glfwGetTime() * 10.0f) * 5.0f + (float)Math.sin(x + y + glfwGetTime() * 10.0f) * 5.0f, 4.0f, 9.0f);
-//                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), (float)Math.sin((30 - x) + y + glfwGetTime() * 2.0f) * 7.0f, 4.0f, 9.0f);
-////                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), 0.0f, 1.0f, 9.0f);
-////                    MasterRenderer.drawSprite(new Vector2f((float) x, (float) y), -32.0f * 1.0f, 0.0f, 9.0f);
-//                }
-////                h += 2.0f;
-//            }
-//            MasterRenderer.drawIsoTile(new Vector2f(10.0f, 10.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-//            MasterRenderer.drawLine(new Vector2f(0.0f, 0.0f), new Vector2f(width, height), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-//            MasterRenderer.drawCoordinateSystem();
-//            MasterRenderer.drawIsoLine(new Vector2f(10.0f, 10.0f), new Vector2f(10.0f, 11.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+            sc.update();
 
             MasterRenderer.endScene();
 

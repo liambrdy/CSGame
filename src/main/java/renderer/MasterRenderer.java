@@ -141,23 +141,27 @@ public class MasterRenderer {
         lineRenderer.render(p0, p1, color);
     }
 
-    public static void drawIsoLine(Vector2f p0, Vector2f p1, Vector4f color) {
+    public static void drawLine(Vector2f p0, Vector2f p1, Vector4f color, Vector2f offset) {
+        lineRenderer.render(p0, p1, color, offset);
+    }
+
+    public static void drawIsoLine(Vector2f p0, Vector2f p1, Vector4f color, Vector2f offset) {
         Vector2f sp0 = currentSheet.toScreen(p0);
         Vector2f sp1 = currentSheet.toScreen(p1);
         sp0.x += currentSheet.getSpriteWidth() * currentSheet.getScale() / 2.0f;
         sp1.x += currentSheet.getSpriteWidth() * currentSheet.getScale() / 2.0f;
-        drawLine(sp0, sp1, color);
+        drawLine(sp0, sp1, color, offset);
     }
 
-    public static void drawIsoTile(Vector2f tile, Vector4f color) {
+    public static void drawIsoTile(Vector2f tile, Vector4f color, Vector2f offset) {
         Vector2f p0 = tile;
         Vector2f p1 = new Vector2f(tile.x, tile.y + 1);
         Vector2f p2 = new Vector2f(tile.x + 1, tile.y + 1);
         Vector2f p3 = new Vector2f(tile.x + 1, tile.y);
-        drawIsoLine(p0, p1, color);
-        drawIsoLine(p1, p2, color);
-        drawIsoLine(p2, p3, color);
-        drawIsoLine(p3, p0, color);
+        drawIsoLine(p0, p1, color, offset);
+        drawIsoLine(p1, p2, color, offset);
+        drawIsoLine(p2, p3, color, offset);
+        drawIsoLine(p3, p0, color, offset);
     }
 
     public static void drawSquare(Vector4f rect, Vector4f color) {
@@ -171,18 +175,22 @@ public class MasterRenderer {
         drawLine(p3, p0, color);
     }
 
-    public static void drawCoordinateSystem() {
+    public static void drawCoordinateSystem(Vector2f offset) {
         for (int col = 0; col < 41; col++) {
 //            Vector2f p0 = currentSheet.toScreen(new Vector2f(col, 0));
 //            Vector2f p1 = currentSheet.toScreen(new Vector2f(col, col));
-            drawIsoLine(new Vector2f(col, 0), new Vector2f(col, 40), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+            drawIsoLine(new Vector2f(col, 0), new Vector2f(col, 40), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), offset);
         }
 
         for (int row = 0; row < 41; row++) {
 //            Vector2f p0 = currentSheet.toScreen(new Vector2f(col, 0));
 //            Vector2f p1 = currentSheet.toScreen(new Vector2f(col, col));
-            drawIsoLine(new Vector2f(0, row), new Vector2f(40, row), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+            drawIsoLine(new Vector2f(0, row), new Vector2f(40, row), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), offset);
         }
+    }
+
+    public static void setSpriteOffset(Vector2f screen) {
+        spriteRenderer.setOffset(screen);
     }
 
     public static float getWidth() {
