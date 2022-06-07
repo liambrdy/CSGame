@@ -17,7 +17,7 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.opengl.GL40.*;
 
 public class SpriteRenderer {
-    public class SpriteEntry {
+    public static class SpriteEntry {
         private Vector2f position;
         private float texX, texY;
         private float height;

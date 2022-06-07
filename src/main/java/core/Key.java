@@ -47,5 +47,6 @@ public enum Key {
     Down,
     Left,
     Right,
+    Shift,
     MAX,
 }

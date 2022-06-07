@@ -15,6 +15,9 @@ public class Input {
     private static boolean[] keysDown;
     private static boolean[] keysPressed;
 
+    private static boolean[] buttonsDown;
+    private static boolean[] buttonsClicked;
+
     private static long windowHandle;
 
     private static final DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
@@ -27,6 +30,9 @@ public class Input {
 
         keysDown = new boolean[Key.MAX.ordinal()];
         keysPressed = new boolean[Key.MAX.ordinal()];
+
+        buttonsDown = new boolean[Button.MAX.ordinal()];
+        buttonsClicked = new boolean[Button.MAX.ordinal()];
 
         try (MemoryStack stack = stackPush()) {
             FloatBuffer xScale = stack.callocFloat(1);
@@ -41,7 +47,7 @@ public class Input {
         }
 
         glfwSetKeyCallback(handle, (window, key, scancode, action, mods) -> {
-            int idx = glfwToEnum(key).ordinal();
+            int idx = glfwToEnumKey(key).ordinal();
 
             if (action == GLFW_PRESS || action == GLFW_REPEAT) {
                 if (!keysDown[idx]) {
@@ -56,13 +62,28 @@ public class Input {
                 keysPressed[idx] = false;
             }
         });
+
+        glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
+            int idx = glfwToEnumButton(button).ordinal();
+
+            if (action == GLFW_PRESS) {
+                if (!buttonsDown[idx]) {
+                    buttonsClicked[idx] = true;
+                }
+                buttonsDown[idx] = true;
+            } else {
+                buttonsDown[idx] = false;
+                buttonsClicked[idx] = false;
+            }
+        });
     }
 
     public static void Update() {
         Arrays.fill(keysPressed, false);
+        Arrays.fill(buttonsClicked, false);
     }
 
-    private static int enumToGLFW(Key k) {
+    private static int glfwToEnumKey(Key k) {
         if (k.compareTo(Key.A) >= 0 && k.compareTo(Key.Z) <= 0) {
             return k.ordinal() - Key.A.ordinal() + GLFW_KEY_A;
         } else if (k.compareTo(Key.N0) >= 0 && k.compareTo(Key.N9) <= 0) {
@@ -78,12 +99,13 @@ public class Input {
                 case Down -> GLFW_KEY_DOWN;
                 case Left -> GLFW_KEY_LEFT;
                 case Right -> GLFW_KEY_RIGHT;
+                case Shift -> GLFW_KEY_LEFT_SHIFT;
                 default -> GLFW_KEY_UNKNOWN;
             };
         }
     }
 
-    private static Key glfwToEnum(int k) {
+    private static Key glfwToEnumKey(int k) {
         if (k >= GLFW_KEY_A && k <= GLFW_KEY_Z) {
             return Key.values()[k - GLFW_KEY_A + Key.A.ordinal()];
         } else if (k >= GLFW_KEY_0 && k <= GLFW_KEY_9) {
@@ -99,15 +121,28 @@ public class Input {
                 case GLFW_KEY_DOWN -> Key.Down;
                 case GLFW_KEY_LEFT -> Key.Left;
                 case GLFW_KEY_RIGHT -> Key.Right;
+                case GLFW_KEY_LEFT_SHIFT, GLFW_KEY_RIGHT_SHIFT -> Key.Shift;
                 default -> Key.Unknown;
             };
         }
     }
 
-    public static boolean getKey(Key k) { return glfwGetKey(windowHandle, enumToGLFW(k)) == GLFW_PRESS; }
+    private static Button glfwToEnumButton(int b) {
+        return switch (b) {
+            case GLFW_MOUSE_BUTTON_1 -> Button.Button1;
+            case GLFW_MOUSE_BUTTON_2 -> Button.Button2;
+            case GLFW_MOUSE_BUTTON_3 -> Button.Button3;
+            default -> Button.Unknown;
+        };
+    }
+
+    public static boolean getKey(Key k) { return glfwGetKey(windowHandle, glfwToEnumKey(k)) == GLFW_PRESS; }
 
     public static boolean isKeyDown(Key k) { return keysDown[k.ordinal()]; }
     public static boolean isKeyPressed(Key k) { return keysPressed[k.ordinal()]; }
+
+    public static boolean isButtonDown(Button b) { return buttonsDown[b.ordinal()]; }
+    public static boolean isButtonClicked(Button b) { return buttonsClicked[b.ordinal()]; }
 
     public static Vector2f getMousePos() {
         glfwGetCursorPos(windowHandle, xBuffer, yBuffer);
