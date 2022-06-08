@@ -28,6 +28,7 @@ public class MasterRenderer {
     private static SpriteSheet currentSheet;
 
     private static LineRenderer lineRenderer;
+    private static GuiRenderer guiRenderer;
 
     private static Matrix4f projection;
     private static Matrix4f ortho;
@@ -51,7 +52,8 @@ public class MasterRenderer {
         spriteRenderer = new SpriteRenderer(currentSheet, ortho);
 
         lineRenderer = new LineRenderer(ortho);
-
+        guiRenderer = new GuiRenderer(ortho);
+        
 //        glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
 //        glEnable(GL_CULL_FACE);
@@ -100,6 +102,7 @@ public class MasterRenderer {
     }
 
     public static void endScene() {
+
         spriteRenderer.endScene();
         lineRenderer.endScene();
         textRenderer.endScene();
@@ -134,7 +137,7 @@ public class MasterRenderer {
     }
 
     public static void drawTexture(Vector4f rect, Texture txt) {
-        spriteRenderer.renderTexture(rect, txt);
+        guiRenderer.render(rect, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), txt);
     }
 
     public static void drawLine(Vector2f p0, Vector2f p1, Vector4f color) {

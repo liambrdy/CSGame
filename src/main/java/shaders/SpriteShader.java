@@ -23,7 +23,10 @@ public class SpriteShader extends Shader {
         super.bindAttribute(1, "a_V1");
         super.bindAttribute(2, "a_V2");
         super.bindAttribute(3, "a_V3");
-        super.bindAttribute(4, "a_SpriteIndex");
+        super.bindAttribute(4, "a_T0");
+        super.bindAttribute(5, "a_T1");
+        super.bindAttribute(6, "a_T2");
+        super.bindAttribute(7, "a_T3");
     }
 
     public void setSpriteSheet() {
