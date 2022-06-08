@@ -9,6 +9,11 @@ import renderer.MasterRenderer;
 import renderer.SpriteRenderer;
 import renderer.SpriteSheet;
 
+import javax.print.attribute.standard.SheetCollate;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +34,10 @@ public class Scene {
 
     private Vector2f homeTile, enemyTile;
     private boolean homeSet, enemySet;
+    private String name;
 
-    public Scene() {
+    public Scene(String n) {
+        name = n;
         selectedTile = new Vector2f(0.0f, 0.0f);
         sheet = MasterRenderer.getCurrentSheet();
 
@@ -81,7 +88,9 @@ public class Scene {
             if (Input.isButtonClicked(Button.Button1)) {
                 Vector2f tile = getTileCoordinate();
                 if (tile.x >= 0 && tile.x <= 40 && tile.y >= 0 && tile.y <= 40) {
-                    if (!shifted) {
+                    if (Input.isKeyDown(Key.Tab)) {
+                        tiles.remove(tile);
+                    } else if (!shifted) {
                         tiles.put(tile, new SpriteRenderer.SpriteEntry(new Vector2f((int) tile.x, (int) tile.y), 0.0f, selectedTile.x, selectedTile.y));
                         lastPlacedTile = tile;
                         currentHeight = 0.0f;
@@ -166,6 +175,31 @@ public class Scene {
         Vector2f s = new Vector2f(x, y);
         if (tiles.containsKey(s)) {
             tiles.get(s).setHeight(h);
+        }
+    }
+
+    public void write(String outputPath) {
+        try (FileOutputStream fileStream = new FileOutputStream(outputPath)) {
+            DataOutputStream stream = new DataOutputStream(fileStream);
+            stream.writeBytes("SCEN");
+            stream.writeInt(name.length());
+            stream.writeBytes(name);
+            stream.writeInt(tiles.size());
+            stream.writeInt(decalTiles.size());
+
+            for (SpriteRenderer.SpriteEntry e : tiles.values()) {
+                Vector2f p = e.getPosition();
+                stream.writeFloat(p.x);
+                stream.writeFloat(p.y);
+                stream.writeFloat(e.getHeight());
+                stream.writeFloat(e.getTexX());
+                stream.writeFloat(e.getTexY());
+            }
+//            SheetCollate nj
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

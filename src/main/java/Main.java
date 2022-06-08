@@ -41,7 +41,7 @@ public class Main {
 
         MasterRenderer.init(width, height);
 
-        Scene sc = new Scene();
+        Scene sc = new Scene("demo");
 
         while (!window.shouldClose()) {
             window.update();
