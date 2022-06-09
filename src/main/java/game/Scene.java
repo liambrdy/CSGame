@@ -57,6 +57,7 @@ public class Scene {
                 tiles.put(pos, new SpriteRenderer.SpriteEntry(pos, 0.0f, 0.0f, 1.0f));
             }
         }
+//        tiles.put(new Vector2f(10.0f, 10.0f), new SpriteRenderer.SpriteEntry(new Vector2f(10.0f, 10.0f), 0.0f, 0.0f, 1.0f));
     }
 
     public void render() {
@@ -85,7 +86,7 @@ public class Scene {
 
             boolean shifted = Input.isKeyDown(Key.Shift);
 
-            if (Input.isButtonClicked(Button.Button1)) {
+            if (Input.isButtonDown(Button.Button1)) {
                 Vector2f tile = getTileCoordinate();
                 if (tile.x >= 0 && tile.x <= 40 && tile.y >= 0 && tile.y <= 40) {
                     if (Input.isKeyDown(Key.Tab)) {
@@ -102,7 +103,7 @@ public class Scene {
 
             if (Input.isButtonClicked(Button.Button2)) {
                 Vector2f tile = getTileCoordinate();
-                if (tile.x >= 0 && tile.x <= 40 && tile.y >= 0 && tile.y <= 40) {
+                if (tile.x >= 0 && tile.x <= 40 && tile.y >= 0 && tile.y <= 40 && tiles.containsKey(tile)) {
                     if (!shifted) {
                         homeTile = tile;
                         homeSet = true;
@@ -201,5 +202,21 @@ public class Scene {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Vector2f getOffset() {
+        return position;
+    }
+
+    public boolean getEditorEnabled() {
+        return editorEnabled;
+    }
+
+    public Vector2f getHomeTile() {
+        return homeTile;
+    }
+
+    public Vector2f getEnemyTile() {
+        return enemyTile;
     }
 }

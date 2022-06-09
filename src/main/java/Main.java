@@ -1,8 +1,10 @@
 import assets.AssetManager;
 import assets.Packer;
 import core.Input;
+import core.Key;
 import core.Window;
 import game.Entity;
+import game.Hero;
 import game.Scene;
 import org.joml.Matrix2f;
 import org.joml.Vector2f;
@@ -42,6 +44,10 @@ public class Main {
         MasterRenderer.init(width, height);
 
         Scene sc = new Scene("demo");
+        List<Entity> entities = new ArrayList<>();
+//        entities.add(new Hero(new Vector2f(10.0f, 10.0f), 100.0f));
+
+        boolean playing = false;
 
         while (!window.shouldClose()) {
             window.update();
@@ -51,6 +57,16 @@ public class Main {
             sc.drawEditor();
             sc.render();
             sc.update();
+
+            if (!sc.getEditorEnabled() && !playing) {
+                if (Input.isKeyPressed(Key.Space)) {
+                    playing = true;
+                    entities.add(new Hero(sc.getHomeTile(), 100.0f));
+                }
+            }
+
+            if (playing)
+                for (Entity e : entities) e.render(sc);
 
             MasterRenderer.endScene();
 

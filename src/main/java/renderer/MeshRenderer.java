@@ -45,22 +45,22 @@ public class MeshRenderer {
         }
     }
 
-    public void render(Entity entity) {
-        shaderHandle.setProjection(projection);
-        shaderHandle.setTransform(entity.getTransform());
-        Model model = entity.getModel();
-        for (int i = 0; i < model.getMeshes().length; i++) {
-            Mesh m = model.getMeshes()[i];
-            glBindVertexArray(m.getVertexArray());
-            Material mat = model.getMaterial(i);
-            mat.getDiffuseTex().bind(0);
-            if (mat.getHasNormalMap()) {
-                mat.getNormalTex().bind(1);
-            }
-            shaderHandle.setMaterial(mat);
-            glDrawElements(GL_TRIANGLES, m.getCount(), GL_UNSIGNED_INT, 0);
-        }
-    }
+//    public void render(Entity entity) {
+//        shaderHandle.setProjection(projection);
+//        shaderHandle.setTransform(entity.getTransform());
+//        Model model = entity.getModel();
+//        for (int i = 0; i < model.getMeshes().length; i++) {
+//            Mesh m = model.getMeshes()[i];
+//            glBindVertexArray(m.getVertexArray());
+//            Material mat = model.getMaterial(i);
+//            mat.getDiffuseTex().bind(0);
+//            if (mat.getHasNormalMap()) {
+//                mat.getNormalTex().bind(1);
+//            }
+//            shaderHandle.setMaterial(mat);
+//            glDrawElements(GL_TRIANGLES, m.getCount(), GL_UNSIGNED_INT, 0);
+//        }
+//    }
 
     public void endScene() {
     }

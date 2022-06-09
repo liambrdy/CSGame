@@ -7,7 +7,7 @@ public class RectShader extends Shader {
     private int textureLocation;
 
     public RectShader() {
-        super("rect.glsl");
+        super("rect");
     }
 
     @Override

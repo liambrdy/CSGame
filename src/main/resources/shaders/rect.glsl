@@ -19,7 +19,7 @@ void main() {
 
     vec2 vertices[4] = vec2[](a_V0, a_V1, a_V2, a_V3);
     vec4 colors[4] = vec4[](a_C0, a_C1, a_C2, a_C3);
-    vec2 uvs[4] = vec2[](vec2(0.0, 1.0), vec2(0.0, 0.0), vec2(1.0, 1.0), ec2(1.0, 0.0));
+    vec2 uvs[4] = vec2[](vec2(0.0, 1.0), vec2(0.0, 0.0), vec2(1.0, 1.0), vec2(1.0, 0.0));
 
     v_Color = colors[gl_VertexID];
     v_TextureCoord = uvs[gl_VertexID];

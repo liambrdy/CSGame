@@ -145,7 +145,7 @@ public class SpriteRenderer {
         float sheetHeight = sheet.getSheet().getHeight();
 
         sprites.sort(new SpriteComparator());
-        int entryCount = sprites.size() > MAX_INSTANCES ? Math.round(sprites.size() / (float)MAX_INSTANCES) : 1;
+        int entryCount = sprites.size() > MAX_INSTANCES ? (int) Math.ceil(sprites.size() / (float) MAX_INSTANCES) : 1;
         for (int i = 0; i < entryCount; i++) {
             ArrayList<SpriteEntry> entries = new ArrayList<>();
             for (int j = 0; j < MAX_INSTANCES; j++) {

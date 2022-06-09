@@ -1,41 +1,26 @@
 package game;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import renderer.Model;
 
-public class Entity {
-    Model model;
-    Matrix4f transform;
-    Vector3f pos;
+public abstract class Entity {
+    Vector2f position;
+    float health, maxHealth;
+    int level, xp;
 
-    public Entity(Model m, Vector3f p, float scale) {
-        model = m;
-        pos = p;
-        transform = new Matrix4f().translate(p).scale(scale);
+    public Entity(Vector2f position, float maxHealth) {
+        this.position = position;
+        this.health = maxHealth;
+        this.maxHealth = maxHealth;
+        this.level = 1;
+        this.xp = 0;
     }
 
-    public Model getModel() {
-        return model;
+    public void move(Vector2f newPos) {
+        position = newPos;
     }
 
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
-    public Matrix4f getTransform() {
-        return transform;
-    }
-
-    public void setTransform(Matrix4f transform) {
-        this.transform = transform;
-    }
-
-    public Vector3f getPos() {
-        return pos;
-    }
-
-    public void setPos(Vector3f pos) {
-        this.pos = pos;
-    }
+    public abstract void render(Scene scene);
 }

@@ -35,6 +35,10 @@ public class GuiRenderer {
             this(r, c, c, c, c, t);
         }
 
+        public RectEntry(Vector4f r, Vector4f b, Vector4f t) {
+            this(r, t, b, t, b, AssetManager.getDefaultTexture());
+        }
+
         public RectEntry(Vector4f r, Vector4f c) {
             this(r, c, AssetManager.getDefaultTexture());
         }
@@ -93,6 +97,9 @@ public class GuiRenderer {
     public void render(Vector4f rect, Vector4f color, Texture t) {
         rects.add(new RectEntry(rect, color, t));
     }
+    public void render(Vector4f rect, Vector4f bottom, Vector4f top) {
+        rects.add(new RectEntry(rect, bottom, top));
+    }
 
     public void beginScene() {
         rects.clear();
@@ -117,9 +124,13 @@ public class GuiRenderer {
                 shader.setProjection(projection);
                 shader.setTexture();
 
-                glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 6, pointer / INSTANCE_DATA_LENGTH);
+                last.bind();
+
+                glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, pointer / INSTANCE_DATA_LENGTH);
                 offset += pointer / INSTANCE_DATA_LENGTH;
                 pointer = 0;
+
+                last = e.texture;
             }
 
             data[pointer++] = e.rect.x;
@@ -138,14 +149,24 @@ public class GuiRenderer {
             }
         }
 
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, data);
+        if (last != null) {
+            glBindVertexArray(vao);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, data);
 
-        shader.bind();
-        shader.setProjection(projection);
-        shader.setTexture();
+            shader.bind();
+            shader.setProjection(projection);
+            shader.setTexture();
 
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 6, pointer / INSTANCE_DATA_LENGTH);
+            last.bind();
+
+            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, pointer / INSTANCE_DATA_LENGTH);
+        }
+    }
+
+    public void drawBackground(Vector4f bottom, Vector4f top) {
+        beginScene();
+        render(new Vector4f(0.0f, 0.0f, MasterRenderer.getWidth(), MasterRenderer.getHeight()), bottom, top);
+        endScene();
     }
 }

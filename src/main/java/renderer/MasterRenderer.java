@@ -95,16 +95,19 @@ public class MasterRenderer {
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        guiRenderer.drawBackground(new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), new Vector4f(0.3f, 0.3f, 1.0f, 1.0f));
+
         //meshRenderer.beginScene();
         textRenderer.beginScene();
         spriteRenderer.beginScene();
         lineRenderer.beginScene();
+        guiRenderer.beginScene();
     }
 
     public static void endScene() {
-
         spriteRenderer.endScene();
         lineRenderer.endScene();
+        guiRenderer.endScene();
         textRenderer.endScene();
     }
 
@@ -119,15 +122,6 @@ public class MasterRenderer {
         ortho.ortho(0.0f, width, height, 0.0f, -100.0f, 100.0f);
     }
 
-    public static void drawScene(List<Entity> entities, List<Light> lights, Camera camera) {
-        staticShader.bind();
-        staticShader.setLights(lights);
-        staticShader.setCamera(camera);
-        for (Entity e : entities) {
-            meshRenderer.render(e);
-        }
-    }
-
     public static void drawText(String text, Vector2f pos, Vector4f color) {
         textRenderer.render(text, pos, color);
     }
@@ -138,6 +132,10 @@ public class MasterRenderer {
 
     public static void drawTexture(Vector4f rect, Texture txt) {
         guiRenderer.render(rect, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), txt);
+    }
+
+    public static void drawRect(Vector4f rect, Vector4f color) {
+        guiRenderer.render(rect, color);
     }
 
     public static void drawLine(Vector2f p0, Vector2f p1, Vector4f color) {

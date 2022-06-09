@@ -55,7 +55,7 @@ public class Font {
                 throw new RuntimeException("Failed to begin char packing");
 
             chars = STBTTPackedchar.create(128-32);
-            stbtt_PackFontRange(context, fontData, 0, STBTT_POINT_SIZE(50), 32, chars);
+            stbtt_PackFontRange(context, fontData, 0, STBTT_POINT_SIZE(20), 32, chars);
 
             stbtt_PackEnd(context);
 
