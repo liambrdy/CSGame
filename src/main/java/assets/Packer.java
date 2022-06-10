@@ -79,7 +79,7 @@ public class Packer {
             DataOutputStream stream = new DataOutputStream(fileStream);
 //            writeString(stream, "aset");
             stream.writeBytes(HEADER);
-            stream.writeInt(assets.shaders.size() + assets.textures.size() + assets.models.size());
+            stream.writeInt(assets.shaders.size() + assets.textures.size() + assets.models.size() + assets.scenes.size());
             for (LoadedShader shader : assets.shaders)
                 shader.write(stream);
 
@@ -118,7 +118,7 @@ public class Packer {
                         case Model -> assets.addModel(new LoadedModel(child));
                         case Texture -> assets.addTexture(new LoadedTexture(child));
                         case Shader -> assets.addShader(new LoadedShader(child));
-                        case Scene -> assets.addScene(new Scene(child));
+                        case Scene -> assets.addScene(new Scene(child, false));
                         default -> {
                             if (ext.equals("mtl")) break;
                             throw new RuntimeException("Unhandled Asset type: " + child);

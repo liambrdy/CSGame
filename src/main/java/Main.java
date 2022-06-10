@@ -44,7 +44,7 @@ public class Main {
 
         MasterRenderer.init(width, height);
 
-        Scene sc = AssetManager.getScene("demo");
+        Scene sc = new Scene(AssetManager.getScene("demo"));
         List<Entity> entities = new ArrayList<>();
 //        entities.add(new Hero(new Vector2f(10.0f, 10.0f), 100.0f));
 
@@ -63,6 +63,9 @@ public class Main {
 
             if (Input.isKeyPressed(Key.S) && Input.isKeyDown(Key.Control))
                 sc.write(new File("src/main/resources/scenes/" + sc.getName() + ".scene"));
+
+            if (Input.isKeyPressed(Key.C))
+                sc = new Scene("demo");
 
             if (Input.isKeyPressed(Key.Backspace) && !playing)
                 editorEnabled = !editorEnabled;

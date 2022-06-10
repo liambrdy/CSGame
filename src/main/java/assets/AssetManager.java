@@ -19,6 +19,7 @@ public class AssetManager {
     private static Map<String, Scene> scenes;
 
     private static Texture defaultTexture;
+    private static Scene defaultScene;
 
     public static void init(String path, boolean inJar) {
         assets = Unpacker.unpack(path, inJar);
@@ -27,6 +28,13 @@ public class AssetManager {
         textures = new HashMap<String, LoadedTexture>();
         models = new HashMap<String, LoadedModel>();
         scenes = new HashMap<String, Scene>();
+
+        ByteBuffer b = BufferUtils.createByteBuffer(Integer.BYTES);
+        b.putInt(0xffffffff);
+        b.flip();
+        defaultTexture = new Texture(1, 1, b, GL_RGBA);
+
+        defaultScene = new Scene("placeholder");
 
         for (LoadedTexture tx : assets.getTextures()) {
             textures.put(tx.getName(), tx);
@@ -40,11 +48,6 @@ public class AssetManager {
 
         for (Scene c : assets.getScenes())
             scenes.put(c.getName(), c);
-
-        ByteBuffer b = BufferUtils.createByteBuffer(Integer.BYTES);
-        b.putInt(0xffffffff);
-        b.flip();
-        defaultTexture = new Texture(1, 1, b, GL_RGBA);
     }
 
     public static void init() {
@@ -55,6 +58,13 @@ public class AssetManager {
         models = new HashMap<String, LoadedModel>();
         glTextures = new HashMap<String, Texture>();
 
+        ByteBuffer b = BufferUtils.createByteBuffer(Integer.BYTES);
+        b.putInt(0xffffffff);
+        b.flip();
+        defaultTexture = new Texture(1, 1, b, GL_RGBA);
+
+        defaultScene = new Scene("placeholder");
+
         for (LoadedTexture tx : assets.getTextures()) {
             textures.put(tx.getName(), tx);
         }
@@ -64,11 +74,6 @@ public class AssetManager {
 
         for (LoadedModel md : assets.getModels())
             models.put(md.getName(), md);
-
-        ByteBuffer b = BufferUtils.createByteBuffer(Integer.BYTES);
-        b.putInt(0xffffffff);
-        b.flip();
-        defaultTexture = new Texture(1, 1, b, GL_RGBA);
     }
 
     public static LoadedShader getLoadedShader(String name) {
@@ -102,8 +107,12 @@ public class AssetManager {
     public static Scene getScene(String name) {
         if (scenes.containsKey(name))
             return scenes.get(name);
+        else {
+            defaultScene.setName(name);
+            return defaultScene;
+        }
 
-        throw new RuntimeException("Failed to find scene with name " + name);
+//        throw new RuntimeException("Failed to find scene with name " + name);
     }
 
     public static Texture getDefaultTexture() {
