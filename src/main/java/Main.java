@@ -14,6 +14,7 @@ import renderer.*;
 import shaders.StaticShader;
 import shaders.TextShader;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.NumberFormat;
@@ -43,30 +44,44 @@ public class Main {
 
         MasterRenderer.init(width, height);
 
-        Scene sc = new Scene("demo");
+        Scene sc = AssetManager.getScene("demo");
         List<Entity> entities = new ArrayList<>();
 //        entities.add(new Hero(new Vector2f(10.0f, 10.0f), 100.0f));
 
         boolean playing = false;
+        boolean editorEnabled = true;
 
         while (!window.shouldClose()) {
             window.update();
 
             MasterRenderer.beginScene();
 
-            sc.drawEditor();
+            if (editorEnabled)
+                sc.drawEditor();
             sc.render();
             sc.update();
 
-            if (!sc.getEditorEnabled() && !playing) {
+            if (Input.isKeyPressed(Key.S) && Input.isKeyDown(Key.Control))
+                sc.write(new File("src/main/resources/scenes/" + sc.getName() + ".scene"));
+
+            if (Input.isKeyPressed(Key.Backspace) && !playing)
+                editorEnabled = !editorEnabled;
+
+            if (!editorEnabled && !playing) {
                 if (Input.isKeyPressed(Key.Space)) {
                     playing = true;
                     entities.add(new Hero(sc.getHomeTile(), 100.0f));
                 }
             }
 
-            if (playing)
-                for (Entity e : entities) e.render(sc);
+            if (!editorEnabled) {
+                float s = MasterRenderer.getCurrentSheet().getScale() + Input.getScroll();
+                s = Math.max(0.1f, Math.min(20.0f, s));
+                MasterRenderer.getCurrentSheet().setScale(s);
+
+                if (playing)
+                    for (Entity e : entities) e.render(sc);
+            }
 
             MasterRenderer.endScene();
 

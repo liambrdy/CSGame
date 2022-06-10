@@ -1,5 +1,7 @@
 package assets;
 
+import game.Scene;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -26,6 +28,7 @@ public class Unpacker {
                     case LoadedShader.HEADER -> assets.addShader(new LoadedShader(stream));
                     case LoadedTexture.HEADER -> assets.addTexture(new LoadedTexture(stream));
                     case LoadedModel.HEADER -> assets.addModel(new LoadedModel(stream));
+                    case Scene.HEADER -> assets.addScene(new Scene(stream));
                 }
             }
 

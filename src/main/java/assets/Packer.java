@@ -1,5 +1,7 @@
 package assets;
 
+import game.Scene;
+
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -13,14 +15,17 @@ public class Packer {
         private List<LoadedModel> models = new ArrayList<>();
         private List<LoadedTexture> textures = new ArrayList<>();
         private List<LoadedShader> shaders = new ArrayList<>();
+        private List<Scene> scenes = new ArrayList<>();
 
         public void addModel(LoadedModel model) { models.add(model); }
         public void addTexture(LoadedTexture texture) { textures.add(texture); }
         public void addShader(LoadedShader shader) { shaders.add(shader); }
+        public void addScene(Scene scene) { scenes.add(scene); }
 
         public List<LoadedModel> getModels() { return models; }
         public List<LoadedTexture> getTextures() { return textures; }
         public List<LoadedShader> getShaders() { return shaders; }
+        public List<Scene> getScenes() { return scenes; }
     }
 
     public static void writeString(FileOutputStream stream, String str) throws IOException {
@@ -84,6 +89,9 @@ public class Packer {
             for (LoadedModel model : assets.models)
                 model.write(stream);
 
+            for (Scene s : assets.scenes)
+                s.write(stream);
+
             stream.write(0);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Failed to find asset file: " + outputPath);
@@ -110,6 +118,7 @@ public class Packer {
                         case Model -> assets.addModel(new LoadedModel(child));
                         case Texture -> assets.addTexture(new LoadedTexture(child));
                         case Shader -> assets.addShader(new LoadedShader(child));
+                        case Scene -> assets.addScene(new Scene(child));
                         default -> {
                             if (ext.equals("mtl")) break;
                             throw new RuntimeException("Unhandled Asset type: " + child);

@@ -1,5 +1,6 @@
 package assets;
 
+import game.Scene;
 import org.lwjgl.BufferUtils;
 import renderer.Texture;
 
@@ -15,6 +16,7 @@ public class AssetManager {
     private static Map<String, LoadedTexture> textures;
     private static Map<String, LoadedModel> models;
     private static Map<String, Texture> glTextures;
+    private static Map<String, Scene> scenes;
 
     private static Texture defaultTexture;
 
@@ -24,6 +26,7 @@ public class AssetManager {
         shaders = new HashMap<String, LoadedShader>();
         textures = new HashMap<String, LoadedTexture>();
         models = new HashMap<String, LoadedModel>();
+        scenes = new HashMap<String, Scene>();
 
         for (LoadedTexture tx : assets.getTextures()) {
             textures.put(tx.getName(), tx);
@@ -34,6 +37,9 @@ public class AssetManager {
 
         for (LoadedModel md : assets.getModels())
             models.put(md.getName(), md);
+
+        for (Scene c : assets.getScenes())
+            scenes.put(c.getName(), c);
 
         ByteBuffer b = BufferUtils.createByteBuffer(Integer.BYTES);
         b.putInt(0xffffffff);
@@ -91,6 +97,13 @@ public class AssetManager {
             return glTextures.get(name);
 
         throw new RuntimeException("Failed to find opengl texture with name " + name);
+    }
+
+    public static Scene getScene(String name) {
+        if (scenes.containsKey(name))
+            return scenes.get(name);
+
+        throw new RuntimeException("Failed to find scene with name " + name);
     }
 
     public static Texture getDefaultTexture() {

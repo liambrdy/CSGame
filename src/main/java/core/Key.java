@@ -43,6 +43,7 @@ public enum Key {
     Enter,
     Escape,
     Backspace,
+    Control,
     Up,
     Down,
     Left,

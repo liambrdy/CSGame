@@ -11,10 +11,12 @@ public class Hero extends Entity {
 
     @Override
     public void render(Scene scene) {
-        Vector2f screen = MasterRenderer.getCurrentSheet().toScreen(position);
-        screen.add(scene.getOffset());
-        Vector2f pos = new Vector2f(screen.x + 32.0f/2 + 5.0f, screen.y + 32.0f/8 + 5.0f);
-        MasterRenderer.drawRect(new Vector4f(pos.x, pos.y, 10.0f, 10.0f), new Vector4f(0.2f, 1.0f, 0.2f, 1.0f));
-        MasterRenderer.drawText(health + "/" + maxHealth, new Vector2f(pos.x, pos.y - 3.0f), new Vector4f(0.8f, 0.2f, 0.2f, 1.0f));
+        Vector2f o = scene.getOffset();
+        float s = MasterRenderer.getCurrentSheet().getScale();
+//        MasterRenderer.drawRect(new Vector4f(pos.x, pos.y, 10.0f, 10.0f), new Vector4f(0.2f, 1.0f, 0.2f, 1.0f));
+        MasterRenderer.drawRectInTile(position, o, 5.0f, new Vector4f(0.2f, 1.0f, 0.2f, 1.0f));
+        Vector2f mouse = scene.getTileCoordinate();
+        if (mouse.equals(position))
+            MasterRenderer.drawTextInTile(health + "/" + maxHealth, position, new Vector2f(o.x, o.y - 2.0f * s), new Vector4f(0.8f, 0.2f, 0.2f, 1.0f));
     }
 }

@@ -45,6 +45,12 @@ public class SpriteSheet {
         return tile;
     }
 
+    public void setScale(float s) {
+        scale = s;
+        tileToScreen = new Matrix2f(0.5f * spriteWidth * scale, 0.25f * spriteHeight * scale, -0.5f * spriteWidth * scale, 0.25f * spriteHeight * scale);
+        screenToTile = new Matrix2f(tileToScreen).invert();
+    }
+
     public Texture getSheet() {
         return sheet;
     }

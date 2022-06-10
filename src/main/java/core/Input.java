@@ -111,6 +111,7 @@ public class Input {
                 case Left -> GLFW_KEY_LEFT;
                 case Right -> GLFW_KEY_RIGHT;
                 case Shift -> GLFW_KEY_LEFT_SHIFT;
+                case Control -> GLFW_KEY_LEFT_CONTROL;
                 default -> GLFW_KEY_UNKNOWN;
             };
         }
@@ -133,6 +134,7 @@ public class Input {
                 case GLFW_KEY_LEFT -> Key.Left;
                 case GLFW_KEY_RIGHT -> Key.Right;
                 case GLFW_KEY_LEFT_SHIFT, GLFW_KEY_RIGHT_SHIFT -> Key.Shift;
+                case GLFW_KEY_LEFT_CONTROL, GLFW_KEY_RIGHT_CONTROL -> Key.Control;
                 default -> Key.Unknown;
             };
         }

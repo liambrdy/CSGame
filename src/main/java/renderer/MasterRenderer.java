@@ -138,6 +138,20 @@ public class MasterRenderer {
         guiRenderer.render(rect, color);
     }
 
+    public static void drawRectInTile(Vector2f tile, Vector2f offset, float size, Vector4f color) {
+        Vector2f screen = currentSheet.toScreen(tile);
+        screen.add(offset);
+        float s = currentSheet.getScale();
+        drawRect(new Vector4f(screen.x + MasterRenderer.getCurrentSheet().getSpriteWidth() * s / 2.0f - size * s / 2.0f, screen.y, size * s, size * s), color);
+    }
+
+    public static void drawTextInTile(String text, Vector2f tile, Vector2f offset, Vector4f color) {
+        Vector2f screen = currentSheet.toScreen(tile);
+        screen.add(offset);
+        float s = currentSheet.getScale();
+        drawText(text, screen, color);
+    }
+
     public static void drawLine(Vector2f p0, Vector2f p1, Vector4f color) {
         lineRenderer.render(p0, p1, color);
     }
