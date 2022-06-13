@@ -60,6 +60,7 @@ public class Scene {
 
     private Vector2f selectedTile;
     private Vector2f lastPlacedTile;
+    private float currentZ = 0.0f;
     private float currentHeight;
 
     private Vector2f homeTile, enemyTile;
@@ -210,7 +211,7 @@ public class Scene {
                         addEdit(new EditAction(EditActionType.TileRemove, t, new Vector2f(lastTile.getTexX(), lastTile.getTexY())));
                         tiles.remove(tile);
                     }
-                } else if (!shifted && !tile.equals(lastPlacedTile)) {
+                } else if (!shifted && !t.equals(lastPlacedTile)) {
                     if (tiles.containsKey(tile)) {
                         addEdit(new EditAction(EditActionType.TileReplace, t, new Vector2f(lastTile.getTexX(), lastTile.getTexY())));
                     } else {
@@ -219,6 +220,17 @@ public class Scene {
                     tiles.put(new Vector3f(tile.x, tile.y, 0.0f), new SpriteRenderer.SpriteEntry(new Vector2f((int) tile.x, (int) tile.y), 0.0f, selectedTile.x, selectedTile.y));
                     lastPlacedTile = t;
                     currentHeight = 0.0f;
+                    currentZ = 0.0f;
+                } else if (shifted && !t.equals(lastPlacedTile)) {
+                    if (tiles.containsKey(tile)) {
+                        addEdit(new EditAction(EditActionType.TileReplace, t, new Vector2f(lastTile.getTexX(), lastTile.getTexY())));
+                    } else {
+                        addEdit(new EditAction(t));
+                    }
+                    tiles.put(new Vector3f(tile.x, tile.y, 1.0f), new SpriteRenderer.SpriteEntry(new Vector2f((int) tile.x, (int) tile.y), 1.0f, 0.0f, selectedTile.x, selectedTile.y));
+                    lastPlacedTile = t;
+                    currentHeight = 0.0f;
+                    currentZ = 1.0f;
                 }
             }
         }
@@ -277,6 +289,7 @@ public class Scene {
         }
 
         if (Input.isKeyPressed(Key.F)) {
+            tiles.clear();
             for (int y = 0; y < 40; y++) {
                 for (int x = 0; x < 40; x++) {
                     Vector2f pos = new Vector2f(x, y);
@@ -285,23 +298,46 @@ public class Scene {
             }
         }
 
+        if (Input.isKeyPressed(Key.H)) {
+            for (int i = 0; i < 40; i++)
+                tiles.put(new Vector3f((float)i, lastPlacedTile.y, currentZ), new SpriteRenderer.SpriteEntry(new Vector2f((float)i, lastPlacedTile.y), 0.0f, selectedTile.x, selectedTile.y));
+        }
+
+        if (Input.isKeyPressed(Key.V)) {
+            for (int i = 0; i < 40; i++)
+                tiles.put(new Vector3f(lastPlacedTile.x, (float)i, currentZ), new SpriteRenderer.SpriteEntry(new Vector2f(lastPlacedTile.x, (float)i), 0.0f, selectedTile.x, selectedTile.y));
+        }
+
         if (Input.isKeyDown(Key.Control)) {
             if (Input.isKeyPressed(Key.Up)) {
-                SpriteRenderer.SpriteEntry e = tiles.remove(new Vector3f(lastPlacedTile.x, lastPlacedTile.y, 0.0f));
-                tiles.put(new Vector3f(lastPlacedTile.x, lastPlacedTile.y, 1.0f), e);
+                SpriteRenderer.SpriteEntry e = tiles.remove(new Vector3f(lastPlacedTile.x, lastPlacedTile.y, currentZ));
+                e.setZ(currentZ + 1.0f);
+                tiles.put(new Vector3f(lastPlacedTile.x, lastPlacedTile.y, currentZ + 1), e);
+                currentZ += 1.0f;
+            } else if (Input.isKeyPressed(Key.Down)) {
+                SpriteRenderer.SpriteEntry e = tiles.remove(new Vector3f(lastPlacedTile.x, lastPlacedTile.y, currentZ));
+                e.setZ(currentZ - 1.0f);
+                tiles.put(new Vector3f(lastPlacedTile.x, lastPlacedTile.y, currentZ - 1), e);
+                currentZ -= 1.0f;
             }
         } else {
-            if (Input.isKeyPressed(Key.Left) && selectedTile.x > 0) {
+            if (Input.isKeyPressed(Key.Left)) {// && selectedTile.x > 0) {
                 selectedTile.x--;
+                selectedTile.x += sheet.getColumns();
+                selectedTile.x %= sheet.getColumns();
             }
-            if (Input.isKeyPressed(Key.Right) && selectedTile.x < sheet.getColumns() - 1) {
+            if (Input.isKeyPressed(Key.Right)) {// && selectedTile.x < sheet.getColumns() - 1) {
                 selectedTile.x++;
+                selectedTile.x %= sheet.getColumns();
             }
-            if (Input.isKeyPressed(Key.Up) && selectedTile.y < sheet.getRows() - 1) {
+            if (Input.isKeyPressed(Key.Up)) {// && selectedTile.y < sheet.getRows() - 1) {
                 selectedTile.y++;
+                selectedTile.y %= sheet.getRows();
             }
-            if (Input.isKeyPressed(Key.Down) && selectedTile.y > 0) {
+            if (Input.isKeyPressed(Key.Down)) {// && selectedTile.y > 0) {
                 selectedTile.y--;
+                selectedTile.y += sheet.getRows();
+                selectedTile.y %= sheet.getRows();
             }
         }
 
@@ -342,7 +378,7 @@ public class Scene {
     }
 
     public void setHeight(float x, float y, float h) {
-        Vector2f s = new Vector2f(x, y);
+        Vector3f s = new Vector3f(x, y, currentZ);
         if (tiles.containsKey(s)) {
             tiles.get(s).setHeight(h);
         }

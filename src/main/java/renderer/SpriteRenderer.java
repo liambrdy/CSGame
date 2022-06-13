@@ -19,14 +19,20 @@ import static org.lwjgl.opengl.GL40.*;
 public class SpriteRenderer {
     public static class SpriteEntry {
         private Vector2f position;
+        private float z;
         private float texX, texY;
         private float height;
 
         public SpriteEntry(Vector2f p, float h, float x, float y) {
+            this(p, 0.0f, h, x, y);
+        }
+
+        public SpriteEntry(Vector2f p, float z, float h, float x, float y) {
             position = p;
             height = h;
             texX = x;
             texY = y;
+            this.z = z;
         }
 
         public Vector2f getPosition() {
@@ -48,6 +54,9 @@ public class SpriteRenderer {
         public void setHeight(float h) {
             height = h;
         }
+
+        public float getZ() { return z; }
+        public void setZ(float zs) { z = zs; }
     };
 
     public class TextureEntry {
@@ -60,12 +69,19 @@ public class SpriteRenderer {
         }
     }
 
-    public class SpriteComparator implements Comparator<SpriteEntry> {
+    public static class SpriteComparator implements Comparator<SpriteEntry> {
         @Override
         public int compare(SpriteEntry o1, SpriteEntry o2) {
-            Float first = o1.position.y;
-            Float second = o2.position.y;
-            return first.compareTo(second);
+            if (o1.z != 0.0f || o2.z != 0.0f) {
+                Float first = o1.z;
+                Float second = o2.z;
+                System.out.println(first + ", " + second);
+                return second.compareTo(first);
+            } else {
+                Float first = o1.position.y - o1.z;
+                Float second = o2.position.y - o2.z;
+                return first.compareTo(second);
+            }
         }
     }
     private static final int MAX_INSTANCES = 1024;
